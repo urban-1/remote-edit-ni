@@ -28,3 +28,5 @@
 '.host-view':
   'tab': 'host-view:focus-next'
   'shift-tab': 'host-view:focus-previous'
+'.remote-edit-tree-view':
+  'backspace': 'filesview:previous-folder'
