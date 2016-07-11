@@ -6,6 +6,7 @@ RemoteEditEditor = require './model/remote-edit-editor'
 OpenFilesView = null
 HostView = null
 HostsView = null
+FilesView = null
 Host = null
 SftpHost = null
 FtpHost = null
@@ -90,6 +91,7 @@ module.exports =
 
     atom.commands.add('atom-workspace', 'remote-edit:show-open-files', => @showOpenFiles())
     atom.commands.add('atom-workspace', 'remote-edit:browse', => @browse())
+    atom.commands.add('atom-workspace', 'remote-edit:browse-more', => @browseMore())
     atom.commands.add('atom-workspace', 'remote-edit:new-host-sftp', => @newHostSftp())
     atom.commands.add('atom-workspace', 'remote-edit:new-host-ftp', => @newHostFtp())
 
@@ -114,6 +116,18 @@ module.exports =
     HostsView ?= require './view/hosts-view'
     view = new HostsView(@getOrCreateIpdw())
     view.toggle()
+
+  browseMore: ->
+    editor = atom.workspace.getActiveTextEditor()
+    if editor instanceof RemoteEditEditor
+      remdir = editor.localFile.remoteFile.dirName
+      atom.notifications.addSuccess("Re-opening: #{remdir} on #{editor.host.hostname}")
+      FilesView ?= require './view/files-view'
+      view = new FilesView(editor.host)
+      view.connect({}, remdir)
+      view.toggle()
+    else
+      @browse()
 
   showOpenFiles: ->
     OpenFilesView ?= require './view/open-files-view'

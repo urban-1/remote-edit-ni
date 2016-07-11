@@ -2,14 +2,14 @@
   "name": "remote-edit",
   "main": "./lib/main.coffee",
   "version": "1.8.24",
-  "description": "Browse and edit remote files using SFTP and FTP",
-  "homepage": "https://github.com/sveale/remote-edit",
+  "description": "Browse and edit remote files using SFTP and FTP [newinnovations fork]",
+  "homepage": "https://github.com/newinnovations/remote-edit",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sveale/remote-edit.git"
+    "url": "https://github.com/newinnovations/remote-edit.git"
   },
   "bugs": {
-    "url": "https://github.com/sveale/remote-edit/issues"
+    "url": "https://github.com/newinnovations/remote-edit/issues"
   },
   "license": "MIT",
   "author": {

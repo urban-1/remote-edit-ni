@@ -24,8 +24,11 @@ module.exports =
       @disposables = new CompositeDisposable
       @listenForEvents()
 
-    connect: (connectionOptions = {}) ->
-      @path = if atom.config.get('remote-edit.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory
+    connect: (connectionOptions = {}, dir = null) ->
+      if dir?
+        @path = dir
+      else
+        @path = if atom.config.get('remote-edit.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory
       async.waterfall([
         (callback) =>
           if @host.usePassword and !connectionOptions.password?

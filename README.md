@@ -1,10 +1,9 @@
-# remote-edit for atom.io
-
-[![Build Status](https://travis-ci.org/sveale/remote-edit.svg?branch=master)](https://travis-ci.org/sveale/remote-edit)
-[![Build status](https://ci.appveyor.com/api/projects/status/i1swrbog9vdk29uk)](https://ci.appveyor.com/project/SverreAleksandersen/remote-edit)
-
+# remote-edit for atom.io [newinnovations fork]
 
 Atom package to browse and edit remote files using FTP and SFTP.
+
+* This fork adds a minor feature that opens the host browse dialog in the remote directory of the current editor tab.
+* Keybindings under <kbd>Alt+r</kbd>
 
 ## Key features
 * Add FTP/SFTP hosts graphically (FTPS not supported at the moment)
@@ -26,11 +25,14 @@ Delete hosts or downloaded files. Usable when selecting hosts (_Browse_) or open
 
 
 ### Windows / Linux specific
-<kbd>Ctrl+Alt+b</kbd>
-Select host.
+<kbd>Alt+r b</kbd>
+Select remote host and start browsing in / or last directory (when selected in preferences).
 
-<kbd>Ctrl+Alt+o</kbd>
-Show downloaded files.
+<kbd>Alt+r m</kbd>
+Browse remote host and directory of the current editor tab.
+
+<kbd>Alt+r o</kbd>
+Show open remote files.
 
 ### Mac OS X specific
 <kbd>Ctrl+Cmd+b</kbd>

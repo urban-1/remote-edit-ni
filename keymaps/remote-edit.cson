@@ -12,8 +12,9 @@
   'ctrl-cmd-o': 'remote-edit:show-open-files'
 
 '.platform-win32, .platform-linux':
-  'ctrl-alt-b': 'remote-edit:browse'
-  'ctrl-alt-o': 'remote-edit:show-open-files'
+  'alt-r b': 'remote-edit:browse'
+  'alt-r o': 'remote-edit:show-open-files'
+  'alt-r m': 'remote-edit:browse-more'
 
 '.open-files-view.select-list':
   'shift-d': 'openfilesview:delete'
