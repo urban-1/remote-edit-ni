@@ -6,7 +6,6 @@ catch e
   # Catch error
 TextEditor = Editor ? require path.resolve resourcePath, 'src', 'text-editor'
 
-
 # Defer requiring
 Host = null
 FtpHost = null
@@ -165,4 +164,3 @@ module.exports =
       state.assert = atomEnvironment.assert.bind(atomEnvironment)
       state.applicationDelegate = atomEnvironment.applicationDelegate
       new this(state)
-
