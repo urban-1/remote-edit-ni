@@ -165,7 +165,7 @@ module.exports =
         @port
         localFiles: localFile.serialize() for localFile in @localFiles
         @usePassword
-        @password
+        password: new Buffer(@password).toString("base64")
         @lastOpenDirectory
       }
 
@@ -173,6 +173,7 @@ module.exports =
       tmpArray = []
       tmpArray.push(LocalFile.deserialize(localFile, host: this)) for localFile in params.localFiles
       params.localFiles = tmpArray
+      params.password = new Buffer(params.password, "base64").toString("utf8")
       params
 
     createFolder: (folderpath, callback) ->
