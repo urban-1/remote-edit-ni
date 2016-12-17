@@ -313,7 +313,7 @@ module.exports =
 
       @list.empty()
       if @items.length
-        for item in items
+        for item in @items
           itemView = $(@viewForItem(item))
           itemView.data('select-list-item', item)
           @list.append(itemView)
