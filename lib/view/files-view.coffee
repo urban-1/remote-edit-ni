@@ -40,7 +40,7 @@ module.exports =
       @listenForEvents()
 
     connect: (connectionOptions = {}, connect_path = false) ->
-      dir = upath.normalize(if connect_path then connect_path else if atom.config.get('remote-edit.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory)
+      dir = upath.normalize(if connect_path then connect_path else if atom.config.get('remote-edit2.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory)
       async.waterfall([
         (callback) =>
           if @host.usePassword and !connectionOptions.password?
@@ -130,7 +130,7 @@ module.exports =
         (callback) =>
           @host.getFilesMetadata(dir, callback)
         (items, callback) =>
-          items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit.foldersOnTop'
+          items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit2.foldersOnTop'
           @setItems(items)
           callback(undefined, undefined)
       ], (err, result) =>
@@ -251,7 +251,7 @@ module.exports =
             @host.invalidate()
             @populate(item.path)
           else if item.isLink
-            if atom.config.get('remote-edit.followLinks')
+            if atom.config.get('remote-edit2.followLinks')
               @populate(item.path)
             else
               @openFile(item)

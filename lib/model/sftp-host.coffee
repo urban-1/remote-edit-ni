@@ -38,8 +38,8 @@ module.exports =
         username: @username,
       }
 
-      if atom.config.get('remote-edit.agentToUse') != 'Default'
-        _.extend(connectionString, {agent: atom.config.get('remote-edit.agentToUse')})
+      if atom.config.get('remote-edit2.agentToUse') != 'Default'
+        _.extend(connectionString, {agent: atom.config.get('remote-edit2.agentToUse')})
       else if process.platform == "win32"
         _.extend(connectionString, {agent: 'pageant'})
       else
@@ -48,7 +48,7 @@ module.exports =
       connectionString
 
     getConnectionStringUsingKey: ->
-      if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (keytar?)
+      if atom.config.get('remote-edit2.storePasswordsUsingKeytar') and (keytar?)
         keytarPassphrase = keytar.getPassword(@getServiceNamePassphrase(), @getServiceAccount())
         {host: @hostname, port: @port, username: @username, privateKey: @getPrivateKey(@privateKeyPath), passphrase: keytarPassphrase}
       else
@@ -56,7 +56,7 @@ module.exports =
 
 
     getConnectionStringUsingPassword: ->
-      if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (keytar?)
+      if atom.config.get('remote-edit2.storePasswordsUsingKeytar') and (keytar?)
         keytarPassword = keytar.getPassword(@getServiceNamePassword(), @getServiceAccount())
         {host: @hostname, port: @port, username: @username, password: keytarPassword}
       else
@@ -139,7 +139,7 @@ module.exports =
           async.map(files, ((file, callback) => callback(null, @createRemoteFileFromFile(path, file))), callback)
         (objects, callback) ->
           objects.push(new RemoteFile((path + "/.."), false, true, false, null, null, null))
-          if atom.config.get 'remote-edit.showHiddenFiles'
+          if atom.config.get 'remote-edit2.showHiddenFiles'
             callback(null, objects)
           else
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) -> callback(null, result)))

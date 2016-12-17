@@ -52,5 +52,10 @@
     "remote",
     "edit",
     "sync"
-  ]
+  ],
+  "apmInstallSource": {
+    "type": "git",
+    "source": "https://github.com/urban-1/remote-edit2.git",
+    "sha": "e3145de753e29cccb33023a6220bfdadd6f30713"
+  }
 }
