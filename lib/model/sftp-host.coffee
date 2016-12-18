@@ -117,6 +117,7 @@ module.exports =
           else
             callback(null)
         (callback) =>
+          console.debug "Real Host Connect..."
           @connection = new ssh2()
           @connection.on 'error', (err) =>
             @emitter.emit 'info', {message: "Error occured when connecting to sftp://#{@username}@#{@hostname}:#{@port}", type: 'error'}
