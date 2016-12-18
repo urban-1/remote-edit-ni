@@ -183,8 +183,11 @@ module.exports =
         (callback) =>
           @connection.sftp(callback)
         (sftp, callback) ->
+          @tmp_sftp = sftp
           sftp.fastPut(localFile.path, localFile.remoteFile.path, callback)
-          sftp.end()
+        (callback) ->
+          @tmp_sftp.end()
+          callback()
       ], (err) =>
         if err?
           @emitter.emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'})
