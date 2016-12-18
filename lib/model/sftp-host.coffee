@@ -241,3 +241,29 @@ module.exports =
           @emitter.emit('info', {message: "Successfully created directory sftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'success'})
         callback(err)
       )
+
+
+    createFile: (filepath, callback) ->
+      @emitter.emit 'info', {message: "Creating remote file at sftp://#{@username}@#{@hostname}:#{@port}#{filepath}", type: 'info'}
+      async.waterfall([
+        (callback) =>
+          @connection.sftp(callback)
+        (sftp, callback) =>
+          @tmp_sftp = sftp
+          sftp.exists(filepath, callback)
+        (callback) =>
+          @tmp_sftp.writeFile(filepath, "", callback)
+        (callback) =>
+          @tmp_sftp.end()
+          callback()
+        ], (err) =>
+            if err?
+              if err == true
+                @emitter.emit('info', {message: "Fle ftp://#{@username}@#{@hostname}:#{@port}#{filepath} already exists", type: 'error'})
+              else
+                @emitter.emit('info', {message: "Error occurred while creating remote file ftp://#{@username}@#{@hostname}:#{@port}#{filepath}", type: 'error'})
+              console.error err if err?
+            else
+              @emitter.emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{filepath}", type: 'success'})
+            callback?(err)
+          )
