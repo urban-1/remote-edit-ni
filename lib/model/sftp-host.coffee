@@ -132,7 +132,7 @@ module.exports =
       )
 
     isConnected: ->
-      @connection? and @connection._state == 'authenticated'
+      @connection? and @connection._sock and @connection._sock.writable
 
     getFilesMetadata: (path, callback) ->
       async.waterfall([
