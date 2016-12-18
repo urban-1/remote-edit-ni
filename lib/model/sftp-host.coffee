@@ -132,15 +132,19 @@ module.exports =
       )
 
     isConnected: ->
-      @connection? and @connection._sock and @connection._sock.writable
+      @connection? and @connection._sock and @connection._sock.writable and @connection._sshstream and  @connection._sshstream.writable
 
     getFilesMetadata: (path, callback) ->
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)
-        (sftp, callback) ->
+        (sftp, callback) =>
+          # temp store in this so we can close it when we are done...
+          @tmp_sftp = sftp
           sftp.readdir(path, callback)
         (files, callback) =>
+          # ... and now we are done!
+          @tmp_sftp.end()
           async.map(files, ((file, callback) => callback(null, @createRemoteFileFromFile(path, file))), callback)
         (objects, callback) ->
           objects.push(new RemoteFile((path + "/.."), false, true, false, null, null, null))
@@ -151,10 +155,12 @@ module.exports =
       ], (err, result) =>
         if err?
           @emitter.emit('info', {message: "Error occured when reading remote directory sftp://#{@username}@#{@hostname}:#{@port}:#{path}", type: 'error'} )
-          console.error err if err?
+          console.error err
+          console.error err.code
           callback?(err)
         else
           callback?(err, (result.sort (a, b) -> return if a.name.toLowerCase() >= b.name.toLowerCase() then 1 else -1))
+
       )
 
     getFile: (localFile, callback) ->
@@ -167,6 +173,7 @@ module.exports =
       ], (err, sftp) =>
         @emitter.emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'}) if err?
         @emitter.emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'}) if !err?
+        sftp?.end()
         callback?(err, localFile)
       )
 
@@ -177,13 +184,14 @@ module.exports =
           @connection.sftp(callback)
         (sftp, callback) ->
           sftp.fastPut(localFile.path, localFile.remoteFile.path, callback)
+          sftp.end()
       ], (err) =>
         if err?
           @emitter.emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'})
           console.error err if err?
         else
           @emitter.emit('info', {message: "Successfully wrote remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'})
-        @close()
+
         callback?(err)
       )
 
@@ -210,3 +218,23 @@ module.exports =
       params.localFiles = tmpArray
       params.password = new Buffer(params.password, "base64").toString("utf8")
       params
+
+    # Create the folder and call the callback. The callback will be called
+    # for both erroe cases (1st arg) and success (2nd arg is the path)
+    createFolder: (folderpath, callback) ->
+      @emitter.emit 'info', {message: "Creating remote directory at sftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'info'}
+      async.waterfall([
+        (callback) =>
+          @connection.sftp(callback)
+        (sftp, callback) ->
+          sftp.mkdir(folderpath, callback)
+          sftp.end()
+          callback(null, folderpath)
+      ], (err) =>
+        if err?
+          @emitter.emit('info', {message: "Error occured while creating remote directory sftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'error'})
+          console.error err if err?
+        else
+          @emitter.emit('info', {message: "Successfully created directory sftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'success'})
+        callback(err)
+      )

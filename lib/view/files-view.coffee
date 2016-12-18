@@ -238,8 +238,10 @@ module.exports =
       async.waterfall([
         (callback) =>
           if !@host.isConnected()
-            @connect({}, dir)
-          callback(null)
+            @setMessage("Connecting...")
+            @host.connect(callback)
+          else
+            callback(null)
         (callback) =>
           @host.invalidate()
           @populate(dir)
