@@ -31,7 +31,7 @@ module.exports =
     constructor: (@alias = null, @hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath, @lastOpenDirectory) ->
       # Default to /home/<username> which is the most common case...
       if @directory == ""
-        @directory = "/home/#{username}"
+        @directory = "/home/#{@username}"
 
       super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword, @lastOpenDirectory)
 
