@@ -199,6 +199,7 @@ module.exports =
       )
 
     serializeParams: ->
+      tmp = if @password then @password else ""
       {
         @alias
         @hostname
@@ -209,7 +210,7 @@ module.exports =
         @useAgent
         @usePrivateKey
         @usePassword
-        password: new Buffer(@password).toString("base64")
+        password: new Buffer(tmp).toString("base64")
         @passphrase
         @privateKeyPath
         @lastOpenDirectory
