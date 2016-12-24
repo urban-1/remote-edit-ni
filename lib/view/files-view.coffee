@@ -38,6 +38,7 @@ module.exports =
       @emitter = new Emitter
       @disposables = new CompositeDisposable
       @listenForEvents()
+      @cutPasteBuffer = {}
 
     connect: (connectionOptions = {}, connect_path = false) ->
       console.debug "re-connecting (FilesView::connect) to #{connect_path}"
@@ -398,6 +399,42 @@ module.exports =
                 @deselect()
 
           @selectedItem = false
+      else
+        throw new Error("Not implemented yet!")
+
+    copycutFolderFile: (cut=false) =>
+      if @selectedItem and @selectedItem.name and @selectedItem.name != '.'
+        @cutPasteBuffer = {
+          name: @selectedItem.name
+          oldPath:  @path + "/" + @selectedItem.name
+          isDir: @selectedItem.isDir
+          cut: cut
+          }
+
+    pasteFolderFile: () =>
+      if !@cutPasteBuffer or !@cutPasteBuffer.oldPath or @cutPasteBuffer.oldPath == '.'
+        @setError("Could not find copy information")
+        console.debug @cutPasteBuffer
+        return
+
+      # Construct the new path using the old name
+      @cutPasteBuffer.newPath = @path + '/' + @cutPasteBuffer.name
+
+      # We only support cut... copying a folder we need to do recursive stuff...
+      if !@cutPasteBuffer.cut
+        throw new Error("Copy is Not implemented yet!")
+
+      if typeof @host.moveFolderFile == 'function'
+        if @selectedItem and @selectedItem.name and @selectedItem.name != '.'
+          async.waterfall([
+            (newname, callback) =>
+              @deselect()
+              @host.moveFolderFile(@cutPasteBuffer.oldPath, @cutPasteBuffer.newPath, @cutPasteBuffer.isDir,  () =>
+                @openDirectory(@path)
+              )
+          ], (err, result) =>
+            @openDirectory(@path)
+          )
       else
         throw new Error("Not implemented yet!")
 
