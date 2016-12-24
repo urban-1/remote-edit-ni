@@ -268,3 +268,26 @@ module.exports =
               @emitter.emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{filepath}", type: 'success'})
             callback?(err)
           )
+
+
+    deleteFolderFile: (deletepath, isFolder, callback) ->
+      async.waterfall([
+        (callback) =>
+          @connection.sftp(callback)
+        (sftp, callback) =>
+          @tmp_sftp = sftp
+          if isFolder
+            sftp.rmdir(deletepath, callback)
+          else
+            sftp.unlink(deletepath, callback)
+        (callback) =>
+          @tmp_sftp.end()
+          callback(null)
+        ], (err) =>
+          if err?
+            @emitter.emit('info', {message: "Error occurred when deleting remote item sftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'error'})
+            console.error err if err?
+          else
+            @emitter.emit('info', {message: "Successfully deleted remote item sftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'success'})
+          callback?(err)
+        )
