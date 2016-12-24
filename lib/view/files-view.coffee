@@ -1,5 +1,6 @@
-{$, $$, View} = require 'atom-space-pen-views'
-{CompositeDisposable, Emitter} = require 'atom'
+{$, $$, TextEditorView} = require 'atom-space-pen-views'
+{View} = require 'space-pen'
+{CompositeDisposable, Emitter, TextEditor} = require 'atom'
 LocalFile = require '../model/local-file'
 
 Dialog = require './dialog'
@@ -28,11 +29,36 @@ module.exports =
             @p class: 'remote-edit-folder text-bold', =>
               @span 'Folder: '
               @span outlet: 'server_folder', 'unknown'
+            # @tag 'atom-text-editor', 'mini': true, class: 'native-key-bindings', outlet: 'filter'
+            # Gettext does not exist cause there is no model behind this...
+            @input class: 'remote-edit-filter-text native-key-bindings', outlet: 'filter'
+            # @subview 'filter', new SimpleTextView(mini: true, password: true)
 
           @div class: 'remote-edit-scroller', outlet: 'scroller', =>
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
           @div class: 'remote-edit-message', outlet: 'message'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
+
+    doFilter: (e) ->
+      switch e.keyCode
+        when 13
+          @openDirectory(@filter.val())
+          @filter.val("")
+          return
+
+      # Hide the elements that do not match the filter's value
+      console.debug "checking for " + @filter.val()
+      if @filter.val().length > 0
+        @list.find('li span').each (index, item) =>
+          if ! $(item).text().match(@filter.val())
+            $(item).addClass('hidden')
+          else
+            $(item).removeClass('hidden')
+      else
+        @list.find('li span').removeClass('hidden')
+
+      e.preventDefault()
+
 
     initialize: (@host) ->
       @emitter = new Emitter
@@ -190,8 +216,7 @@ module.exports =
 
     openFile: (file) =>
       dtime = moment().format("HH:mm:ss DD/MM/YY")
-      # urban-1: Seems to me that we were trying to open a file while the host
-      # was disconnected... TODO: Fix connecting every time...
+
       async.waterfall([
         (callback) =>
           if !@host.isConnected()
@@ -311,6 +336,8 @@ module.exports =
         @resizeToFitContent()
 
       @on 'mousedown', '.remote-edit-resize-handle', (e) => @resizeStarted(e)
+
+      @filter.on "keyup", (e) => @doFilter(e)
 
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:open', =>
         item = @getSelectedItem()

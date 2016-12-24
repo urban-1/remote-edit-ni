@@ -2,6 +2,8 @@ _ = require 'underscore-plus'
 # Import needed to register deserializer
 RemoteEditEditor = require './model/remote-edit-editor'
 
+
+
 # Deferred requirements
 OpenFilesView = null
 HostView = null
