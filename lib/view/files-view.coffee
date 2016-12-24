@@ -22,7 +22,7 @@ module.exports =
     @content: ->
       @div class: 'remote-edit-tree-view remote-edit-resizer tool-panel', 'data-show-on-right-side': false, =>
         @div class: 'remote-edit-scroller order--center', =>
-          @div class: 'remote-edit-info focusable-panel', tabindex: -1, click: 'clickInfo', =>
+          @div class: 'remote-edit-info focusable-panel', click: 'clickInfo', =>
             @p class: 'remote-edit-server', =>
               @span class: 'remote-edit-server-type inline-block', 'FTP:'
               @span class: 'remote-edit-server-alias inline-block highlight', outlet: 'server_alias', 'unknown'
@@ -31,7 +31,7 @@ module.exports =
               @span outlet: 'server_folder', 'unknown'
             # @tag 'atom-text-editor', 'mini': true, class: 'native-key-bindings', outlet: 'filter'
             # Gettext does not exist cause there is no model behind this...
-            @input class: 'remote-edit-filter-text native-key-bindings', outlet: 'filter'
+            @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
             # @subview 'filter', new SimpleTextView(mini: true, password: true)
 
           @div class: 'remote-edit-scroller', outlet: 'scroller', =>
@@ -42,8 +42,16 @@ module.exports =
     doFilter: (e) ->
       switch e.keyCode
         when 13
-          @openDirectory(@filter.val())
-          @filter.val("")
+          toOpen = @filter.val()
+          if @filter.val()[0] == "." or @filter.val()[0] != "/"
+            toOpen = @path + "/" + @filter.val()
+
+          @openDirectory(toOpen, (err) =>
+            if err?
+              @setError("Could not open location")
+            else
+              @filter.val("")
+            )
           return
 
       # Hide the elements that do not match the filter's value
@@ -163,9 +171,12 @@ module.exports =
           @setItems(items)
           callback(undefined, undefined)
       ], (err, result) =>
-        @updatePath(dir)
-        @populateInfo()
-        @setError(err) if err?
+        if ! err
+          @updatePath(dir)
+          @populateInfo()
+        else
+          @setError(err) if err?
+
         callback?(err, result)
       )
 
@@ -259,7 +270,7 @@ module.exports =
           atom.workspace.open(uri, split: 'left')
       )
 
-    openDirectory: (dir) =>
+    openDirectory: (dir, callback) =>
       dir = upath.normalize(dir)
       async.waterfall([
         (callback) =>
@@ -270,9 +281,9 @@ module.exports =
             callback(null)
         (callback) =>
           @host.invalidate()
-          @populate(dir)
-      ], (err, savePath) ->
-        callback(err, savePath)
+          @populate(dir, callback)
+      ], (err) ->
+        callback?(err)
       )
 
     #
