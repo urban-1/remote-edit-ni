@@ -413,8 +413,7 @@ module.exports =
 
     pasteFolderFile: () =>
       if !@cutPasteBuffer or !@cutPasteBuffer.oldPath or @cutPasteBuffer.oldPath == '.'
-        @setError("Could not find copy information")
-        console.debug @cutPasteBuffer
+        @setError("Nothing to paste")
         return
 
       # Construct the new path using the old name
@@ -431,6 +430,8 @@ module.exports =
               @deselect()
               @host.moveFolderFile(@cutPasteBuffer.oldPath, @cutPasteBuffer.newPath, @cutPasteBuffer.isDir,  () =>
                 @openDirectory(@path)
+                # reset buffer
+                @cutPasteBuffer = {}
               )
           ], (err, result) =>
             @openDirectory(@path)
