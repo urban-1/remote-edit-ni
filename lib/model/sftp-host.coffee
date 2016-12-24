@@ -285,9 +285,50 @@ module.exports =
           callback(null)
         ], (err) =>
           if err?
-            @emitter.emit('info', {message: "Error occurred when deleting remote item sftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'error'})
+            @emitter.emit('info', {message: "Error occurred when deleting remote folder/file sftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'error'})
             console.error err if err?
           else
-            @emitter.emit('info', {message: "Successfully deleted remote item sftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'success'})
+            @emitter.emit('info', {message: "Successfully deleted remote folder/file sftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'success'})
           callback?(err)
+        )
+
+    renameFolderFile: (path, oldName, newName, isFolder, callback) =>
+      if oldName == newName
+        @emitter.emit('info', {message: "The new name is same as the old", type: 'error'})
+        return
+      oldPath = path + "/" + oldName
+      newPath = path + "/" + newName
+      @moveFolderFile(oldPath, newPath, isFolder, callback)
+
+    moveFolderFile: (oldPath, newPath, isFolder, callback) ->
+      async.waterfall([
+        (callback) =>
+          @connection.sftp(callback)
+        (sftp, callback) =>
+          @tmp_sftp = sftp
+          if isFolder
+            sftp.readdir(newPath, callback)
+          else
+            sftp.exists(newPath, callback)
+        ], (err, result) =>
+          console.log result
+          if (isFolder and result != undefined) or (!isFolder and err==true)
+            @emitter.emit('info', {message: "#{if isFolder then 'Folder' else 'File'} already exists", type: 'error'})
+            @tmp_sftp.end()
+            return
+
+          async.waterfall([
+            (callback) =>
+              @tmp_sftp.rename(oldPath, newPath, callback)
+            (callback) =>
+              @tmp_sftp.end()
+              callback()
+          ], (err) =>
+            if err?
+              @emitter.emit('info', {message: "Error occurred when renaming remote folder/file sftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'error'})
+              console.error err if err?
+            else
+              @emitter.emit('info', {message: "Successfully renamed remote folder/file sftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'success'})
+            callback?(err)
+          )
         )
