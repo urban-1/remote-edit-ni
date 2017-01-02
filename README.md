@@ -6,6 +6,13 @@
 
 Atom package to browse and edit remote files using FTP and SFTP.
 
+## Credit
+This is a fork of a project created by Sverre Aleksandersen (sverre). It was
+created to integrate bug fixes and new features.
+
+The original project can be found at https://github.com/sveale/remote-edit
+
+
 ## Key features
 * Add FTP/SFTP hosts graphically (FTPS not supported at the moment)
 * Supports password, key and agent authentication
