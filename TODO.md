@@ -9,3 +9,5 @@
  - [x] When deserializing localFiles, check to see if the file is deleted and if so remove it.
  - [x] Display more information in "Show downloaded files"
  - [x] Store when files are downloaded
+ - [ ] Handle SFTP "expected" errors like PERMISSION_DENIED when navigating
+ - [ ] Add a "Remote File Modified" warning based on timestamp

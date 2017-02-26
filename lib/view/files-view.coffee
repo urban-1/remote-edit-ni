@@ -1,5 +1,6 @@
-{$, $$, View} = require 'atom-space-pen-views'
-{CompositeDisposable, Emitter} = require 'atom'
+{$, $$, TextEditorView} = require 'atom-space-pen-views'
+{View} = require 'space-pen'
+{CompositeDisposable, Emitter, TextEditor} = require 'atom'
 LocalFile = require '../model/local-file'
 
 Dialog = require './dialog'
@@ -21,26 +22,61 @@ module.exports =
     @content: ->
       @div class: 'remote-edit-tree-view remote-edit-resizer tool-panel', 'data-show-on-right-side': false, =>
         @div class: 'remote-edit-scroller order--center', =>
-          @div class: 'remote-edit-info focusable-panel', tabindex: -1, click: 'clickInfo', =>
+          @div class: 'remote-edit-info focusable-panel', click: 'clickInfo', =>
             @p class: 'remote-edit-server', =>
               @span class: 'remote-edit-server-type inline-block', 'FTP:'
               @span class: 'remote-edit-server-alias inline-block highlight', outlet: 'server_alias', 'unknown'
             @p class: 'remote-edit-folder text-bold', =>
               @span 'Folder: '
               @span outlet: 'server_folder', 'unknown'
+            # @tag 'atom-text-editor', 'mini': true, class: 'native-key-bindings', outlet: 'filter'
+            # Gettext does not exist cause there is no model behind this...
+            @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
+            # @subview 'filter', new SimpleTextView(mini: true, password: true)
 
           @div class: 'remote-edit-scroller', outlet: 'scroller', =>
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
           @div class: 'remote-edit-message', outlet: 'message'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
+    doFilter: (e) ->
+      switch e.keyCode
+        when 13
+          toOpen = @filter.val()
+          if @filter.val()[0] == "." or @filter.val()[0] != "/"
+            toOpen = @path + "/" + @filter.val()
+
+          @openDirectory(toOpen, (err) =>
+            if err?
+              @setError("Could not open location")
+            else
+              @filter.val("")
+            )
+          return
+
+      # Hide the elements that do not match the filter's value
+      console.debug "checking for " + @filter.val()
+      if @filter.val().length > 0
+        @list.find('li span').each (index, item) =>
+          if ! $(item).text().match(@filter.val())
+            $(item).addClass('hidden')
+          else
+            $(item).removeClass('hidden')
+      else
+        @list.find('li span').removeClass('hidden')
+
+      e.preventDefault()
+
+
     initialize: (@host) ->
       @emitter = new Emitter
       @disposables = new CompositeDisposable
       @listenForEvents()
+      @cutPasteBuffer = {}
 
     connect: (connectionOptions = {}, connect_path = false) ->
-      dir = upath.normalize(if connect_path then connect_path else if atom.config.get('remote-edit.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory)
+      console.debug "re-connecting (FilesView::connect) to #{connect_path}"
+      dir = upath.normalize(if connect_path then connect_path else if atom.config.get('remote-edit2.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory)
       async.waterfall([
         (callback) =>
           if @host.usePassword and !connectionOptions.password?
@@ -74,6 +110,7 @@ module.exports =
             @setError("You do not have read permission to what you've specified as the default directory! See the console for more info.")
           else if err.code is 2 and @path is @host.lastOpenDirectory
             # no such file, can occur if lastOpenDirectory is used and the dir has been removed
+            console.debug  "No such file, can occur if lastOpenDirectory is used and the dir has been removed"
             @host.lastOpenDirectory = undefined
             @connect(connectionOptions)
           else if @host.usePassword and (err.code == 530 or err.level == "connection-ssh")
@@ -130,13 +167,16 @@ module.exports =
         (callback) =>
           @host.getFilesMetadata(dir, callback)
         (items, callback) =>
-          items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit.foldersOnTop'
+          items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit2.foldersOnTop'
           @setItems(items)
           callback(undefined, undefined)
       ], (err, result) =>
-        @updatePath(dir)
-        @populateInfo()
-        @setError(err) if err?
+        if ! err
+          @updatePath(dir)
+          @populateInfo()
+        else
+          @setError(err) if err?
+
         callback?(err, result)
       )
 
@@ -187,13 +227,20 @@ module.exports =
 
     openFile: (file) =>
       dtime = moment().format("HH:mm:ss DD/MM/YY")
+
       async.waterfall([
+        (callback) =>
+          if !@host.isConnected()
+            @setMessage("Connecting...")
+            @host.connect(callback)
+          else
+            callback(null)
         (callback) =>
           @getDefaultSaveDirForHostAndFile(file, callback)
         (savePath, callback) =>
           savePath = savePath + path.sep + dtime.replace(/([^a-z0-9\s]+)/gi, '').replace(/([\s]+)/gi, '-') + "_" + file.name
           localFile = new LocalFile(savePath, file, dtime, @host)
-          @host.getFile(localFile, callback)
+
           uri = path.normalize(savePath)
           filePane = atom.workspace.paneForURI(uri)
           if filePane
@@ -223,20 +270,25 @@ module.exports =
           atom.workspace.open(uri, split: 'left')
       )
 
-    openDirectory: (dir) =>
+    openDirectory: (dir, callback) =>
       dir = upath.normalize(dir)
       async.waterfall([
         (callback) =>
           if !@host.isConnected()
-            @connect({}, dir)
-          callback(null)
+            @setMessage("Connecting...")
+            @host.connect(callback)
+          else
+            callback(null)
         (callback) =>
           @host.invalidate()
-          @populate(dir)
-      ], (err, savePath) ->
-        callback(err, savePath)
+          @populate(dir, callback)
+      ], (err) ->
+        callback?(err)
       )
 
+    #
+    # Called on event listener to handle all actions of the file list
+    #
     confirmed: (item) ->
       async.waterfall([
         (callback) =>
@@ -251,7 +303,7 @@ module.exports =
             @host.invalidate()
             @populate(item.path)
           else if item.isLink
-            if atom.config.get('remote-edit.followLinks')
+            if atom.config.get('remote-edit2.followLinks')
               @populate(item.path)
             else
               @openFile(item)
@@ -296,6 +348,8 @@ module.exports =
 
       @on 'mousedown', '.remote-edit-resize-handle', (e) => @resizeStarted(e)
 
+      @filter.on "keyup", (e) => @doFilter(e)
+
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:open', =>
         item = @getSelectedItem()
         if item.isFile
@@ -313,7 +367,7 @@ module.exports =
 
       @list.empty()
       if @items.length
-        for item in items
+        for item in @items
           itemView = $(@viewForItem(item))
           itemView.data('select-list-item', item)
           @list.append(itemView)
@@ -383,6 +437,43 @@ module.exports =
                 @deselect()
 
           @selectedItem = false
+      else
+        throw new Error("Not implemented yet!")
+
+    copycutFolderFile: (cut=false) =>
+      if @selectedItem and @selectedItem.name and @selectedItem.name != '.'
+        @cutPasteBuffer = {
+          name: @selectedItem.name
+          oldPath:  @path + "/" + @selectedItem.name
+          isDir: @selectedItem.isDir
+          cut: cut
+          }
+
+    pasteFolderFile: () =>
+      if !@cutPasteBuffer or !@cutPasteBuffer.oldPath or @cutPasteBuffer.oldPath == '.'
+        @setError("Nothing to paste")
+        return
+
+      # Construct the new path using the old name
+      @cutPasteBuffer.newPath = @path + '/' + @cutPasteBuffer.name
+
+      # We only support cut... copying a folder we need to do recursive stuff...
+      if !@cutPasteBuffer.cut
+        throw new Error("Copy is Not implemented yet!")
+
+      if typeof @host.moveFolderFile == 'function'
+        if @selectedItem and @selectedItem.name and @selectedItem.name != '.'
+          async.waterfall([
+            (newname, callback) =>
+              @deselect()
+              @host.moveFolderFile(@cutPasteBuffer.oldPath, @cutPasteBuffer.newPath, @cutPasteBuffer.isDir,  () =>
+                @openDirectory(@path)
+                # reset buffer
+                @cutPasteBuffer = {}
+              )
+          ], (err, result) =>
+            @openDirectory(@path)
+          )
       else
         throw new Error("Not implemented yet!")
 

@@ -2,6 +2,8 @@ _ = require 'underscore-plus'
 # Import needed to register deserializer
 RemoteEditEditor = require './model/remote-edit-editor'
 
+
+
 # Deferred requirements
 OpenFilesView = null
 HostView = null
@@ -99,6 +101,8 @@ module.exports =
     atom.commands.add('atom-workspace', 'remote-edit:create-file', => @createFilesView().createFile())
     atom.commands.add('atom-workspace', 'remote-edit:rename-folder-file', => @createFilesView().renameFolderFile())
     atom.commands.add('atom-workspace', 'remote-edit:remove-folder-file', => @createFilesView().deleteFolderFile())
+    atom.commands.add('atom-workspace', 'remote-edit:cut-folder-file', => @createFilesView().copycutFolderFile(true))
+    atom.commands.add('atom-workspace', 'remote-edit:paste-folder-file', => @createFilesView().pasteFolderFile())
 
   deactivate: ->
     @ipdw?.destroy()
@@ -134,7 +138,7 @@ module.exports =
     @filesView
 
   initializeIpdwIfNecessary: ->
-    if atom.config.get 'remote-edit.notifications'
+    if atom.config.get 'remote-edit2.notifications'
       stop = false
       for editor in atom.workspace.getTextEditors() when !stop
         if editor instanceof RemoteEditEditor
@@ -145,7 +149,7 @@ module.exports =
     if @ipdw is undefined
       InterProcessDataWatcher ?= require './model/inter-process-data-watcher'
       fs = require 'fs-plus'
-      @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit.defaultSerializePath')))
+      @ipdw = new InterProcessDataWatcher(fs.absolute(atom.config.get('remote-edit2.defaultSerializePath')))
     else
       @ipdw
 
