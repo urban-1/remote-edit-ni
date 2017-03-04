@@ -1,7 +1,7 @@
 {
   "name": "remote-edit-ni",
   "main": "./lib/main.coffee",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Browse and edit remote files using SFTP and FTP [newinnovations fork]",
   "homepage": "https://github.com/newinnovations/remote-edit-ni",
   "repository": {
@@ -16,10 +16,12 @@
     "name": "Sverre Aleksandersen",
     "email": "sverre.aleksandersen@gmail.com"
   },
-  "contributors": [{
-    "name": "Martin van der Werff",
-    "email": "github@newinnovations.nl"
-  }],
+  "contributors": [
+    {
+      "name": "Martin van der Werff",
+      "email": "github@newinnovations.nl"
+    }
+  ],
   "engines": {
     "atom": ">=1.2.3 <2.0.0"
   },
