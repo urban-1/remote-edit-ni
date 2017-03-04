@@ -71,7 +71,7 @@ module.exports =
       @initiateUpload()
 
     initiateUpload: ->
-      if atom.config.get 'remote-edit.uploadOnSave'
+      if atom.config.get 'remote-edit-ni.uploadOnSave'
         @upload()
       else
         Dialog ?= require '../view/dialog'
@@ -164,4 +164,3 @@ module.exports =
       state.assert = atomEnvironment.assert.bind(atomEnvironment)
       state.applicationDelegate = atomEnvironment.applicationDelegate
       new this(state)
-

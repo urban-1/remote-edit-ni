@@ -28,7 +28,7 @@ module.exports =
       if dir?
         @path = dir
       else
-        @path = if atom.config.get('remote-edit.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory
+        @path = if atom.config.get('remote-edit-ni.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory
       async.waterfall([
         (callback) =>
           if @host.usePassword and !connectionOptions.password?
@@ -124,7 +124,7 @@ module.exports =
           @setLoading("Loading...")
           @host.getFilesMetadata(@path, callback)
         (items, callback) =>
-          items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit.foldersOnTop'
+          items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit-ni.foldersOnTop'
           @setItems(items)
           callback(undefined, undefined)
       ], (err, result) =>
@@ -209,7 +209,7 @@ module.exports =
         @host.invalidate()
         @populate()
       else if item.isLink
-        if atom.config.get('remote-edit.followLinks')
+        if atom.config.get('remote-edit-ni.followLinks')
           @filterEditorView.setText('')
           @setItems()
           @updatePath(item.name)

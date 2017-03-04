@@ -64,12 +64,12 @@ module.exports =
       return toreturn.toString()
 
     getServiceNamePassword: ->
-      "atom.remote-edit.ftp.password"
+      "atom.remote-edit-ni.ftp.password"
 
     ####################
     # Overridden methods
     getConnectionString: (connectionOptions) ->
-      if atom.config.get('remote-edit.storePasswordsUsingKeytar') and (keytar?)
+      if atom.config.get('remote-edit-ni.storePasswordsUsingKeytar') and (keytar?)
         keytarPassword = keytar.getPassword(@getServiceNamePassword(), @getServiceAccount())
         _.extend({host: @hostname, port: @port, user: @username, password: keytarPassword}, connectionOptions)
       else
@@ -110,7 +110,7 @@ module.exports =
           async.filter(objects, ((item, callback) -> callback(item?)), ((result) -> callback(null, result)))
         (objects, callback) ->
           objects.push(new RemoteFile((path + "/.."), false, true, false, null, null, null))
-          if atom.config.get 'remote-edit.showHiddenFiles'
+          if atom.config.get 'remote-edit-ni.showHiddenFiles'
             callback(null, objects)
           else
             async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) -> callback(null, result)))
