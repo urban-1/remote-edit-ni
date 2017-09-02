@@ -202,7 +202,7 @@ module.exports =
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
         (callback) ->
-          fs.realpath(os.tmpDir(), callback)
+          fs.realpath(os.tmpdir(), callback)
         (tmpDir, callback) ->
           tmpDir = tmpDir + path.sep + "remote-edit"
           fs.mkdir(tmpDir, ((err) ->
@@ -213,7 +213,7 @@ module.exports =
             )
           )
         (tmpDir, callback) =>
-          tmpDir = tmpDir + path.sep + @host.hashCode() + '_' + @host.username + "-" + @host.hostname +  file.dirName
+          tmpDir = tmpDir + path.sep + @host.hashCode() + '_' + @host.username + "-" + @host.hostname + file.dirName
           mkdirp(tmpDir, ((err) ->
             if err? && err.code == 'EEXIST'
               callback(null, tmpDir)
@@ -238,7 +238,8 @@ module.exports =
         (callback) =>
           @getDefaultSaveDirForHostAndFile(file, callback)
         (savePath, callback) =>
-          savePath = savePath + path.sep + dtime.replace(/([^a-z0-9\s]+)/gi, '').replace(/([\s]+)/gi, '-') + "_" + file.name
+          # savePath = savePath + path.sep + dtime.replace(/([^a-z0-9\s]+)/gi, '').replace(/([\s]+)/gi, '-') + "_" + file.name
+          savePath = savePath + path.sep + file.name
           localFile = new LocalFile(savePath, file, dtime, @host)
 
           uri = path.normalize(savePath)
@@ -267,7 +268,14 @@ module.exports =
         else if localFile
           @host.addLocalFile(localFile)
           uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
-          atom.workspace.open(uri, split: 'left')
+          # Create the textEditor but also make sure we clean up on destroy
+          # and remove the loca file...
+          atom.workspace.open(uri, split: 'left').then(
+            (textEditor) =>
+              textEditor.onDidDestroy(() =>
+                  @host.removeLocalFile(localFile)
+              )
+          )
       )
 
     openDirectory: (dir, callback) =>
