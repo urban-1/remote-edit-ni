@@ -269,7 +269,7 @@ module.exports =
           @host.addLocalFile(localFile)
           uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
           # Create the textEditor but also make sure we clean up on destroy
-          # and remove the loca file...
+          # and remove the local file...
           atom.workspace.open(uri, split: 'left').then(
             (textEditor) =>
               textEditor.onDidDestroy(() =>
