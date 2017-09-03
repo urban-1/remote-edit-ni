@@ -20,6 +20,7 @@ module.exports =
     atom.deserializers.add(this)
 
     constructor: (params = {}) ->
+      console.log params
       super(params)
       if params.host
         @host = params.host

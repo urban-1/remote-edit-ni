@@ -40,6 +40,7 @@ module.exports =
       # Search for this item and remember index
       for item in @items
         if item.hostname == hostname and item.meta.path = file.path
+          console.debug "Removing " +  file.path
           foundIndex = index
           break
 
@@ -49,9 +50,10 @@ module.exports =
       if foundIndex > -1
         @items.splice(foundIndex, 1)
 
-      @rebuildTree()
+      @rebuildTree(@tree.root, "root", 0)
+      @refreshUITree()
 
-
+    # ... dont ask... gist... TODO: ref
     merge = (xs...) ->
       if xs?.length > 0
         tap {}, (m) -> m[k] = v for k, v of x for x in xs
