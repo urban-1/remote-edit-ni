@@ -9,12 +9,11 @@ module.exports =
       @tree = []
 
     @content: ->
-      @div =>
+      @div class: 'remote-edit-opened-tree', =>
         @div class: 'remote-edit-scroller order--center', =>
           @div class: 'remote-edit-scroller', outlet: 'scroller', =>
             @span class: 'remote-edit-treeview-header inline-block', 'Open Files'
-            @hr
-            @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'tree'
+            @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'treeUI'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
     addFile: (file, hostname) ->
@@ -32,6 +31,7 @@ module.exports =
 
       @items.push(toadd)
       @rebuildTree()
+      @refreshUITree()
 
     removeFile: (file, hostname) ->
       index = 0
@@ -52,8 +52,13 @@ module.exports =
       @rebuildTree()
 
 
+    merge = (xs...) ->
+      if xs?.length > 0
+        tap {}, (m) -> m[k] = v for k, v of x for x in xs
 
-    reduceTree: (node, name, level=0) ->
+    tap = (o, fn) -> fn(o); o
+
+    reduceTree: (node, path, level=0) ->
       length = (k for own k of node.children).length
 
       # Add meta data to be able to detect icon later (todo: move to render?)
@@ -69,29 +74,35 @@ module.exports =
 
       # We always keep 0 since it is the host
       if length == 1 and level > 1 and !node.keep
-        console.debug "Removing " + name
-        node.parent.children = node.children
+        console.debug "Removing " + path
+        # FIXME: merge
+        node.parent.children = merge node.parent.children, node.children
+        delete node.parent.children[path]
+        console.debug node.parent.children
         node = node.parent
 
       # in any case now, recurse
-      for key of node.children
-        @reduceTree(node.children[key], key, level+1)
+      for path of node.children
+        @reduceTree(node.children[path], path, level+1)
 
 
     rebuildTree: ->
-      @tree = {root: children:{}, parent: null}
+      @tree = {root: children:{}, parent: null, name: "root"}
       # Loop all items and build the full tree
       for item in @items
 
         # Add hostname if not in already
         node = @tree.root
+        # Build path as we go
+        pathStr = ""
 
         for p in item.path
-          if !(p of node.children)
-            console.debug "Adding " + p
-            node.children[p] = {children: {}, parent: node}
+          pathStr += Path.sep + p
+          if !(pathStr of node.children)
+            console.debug "Adding " + pathStr
+            node.children[pathStr] = {children: {}, parent: node, name: p}
 
-          node = node.children[p]
+          node = node.children[pathStr]
 
         # Node should be pointing to the leaf
         node.meta = item.meta
@@ -103,15 +114,42 @@ module.exports =
       @reduceTree(@tree.root, "root", 0)
       console.debug @tree
 
+    refreshUITree: (node=@tree.root, name="root", parentUI=null, level=0) ->
+      return unless @tree?
+
+      # New root
+      if level == 0
+        @treeUI.empty()
+        parentUI = @treeUI
+
+      # Depth first...
+      for path of node.children
+        # add this node to current parent and use as parent for the rest
+        currentElement = @viewForItem(node.children[path])
+        parentUI.append(currentElement)
+
+        # If not a file item... recurse
+        if !node.children[path].isFile
+          # The parent node is actually the <ol> element...
+          olParent = currentElement.find('ol.list-tree.entries').first()
+          @refreshUITree(node.children[path], path, olParent, level+1)
 
 
 
-
-    viewForItem: (item) ->
+    viewForItem: (node) ->
       icon = switch
-        when item.isDir then 'icon-file-directory'
-        when item.isLink then 'icon-file-symlink-file'
+        when node.isFolder then 'icon-file-directory'
+        when node.isFile then 'icon-file-symlink-file'
+        when node.isServer then 'icon-server'
         else 'icon-file-text'
-      $$ ->
-        @li class: 'list-item list-selectable-item two-lines', =>
-          @span class: 'primary-line icon '+ icon, 'data-name' : item.name, title : item.name, item.name
+
+      if node.isServer or node.isFolder
+        $$ ->
+          @li class: 'list-nested-item folder', =>
+              @div class: 'header list-item', =>
+                  @span class: 'icon '+ icon, 'data-name' : node.name, title : node.name, node.name
+              @ol class: 'list-tree entries'
+      else
+        $$ ->
+          @li class: 'list-item file', =>
+            @span class: 'icon '+ icon, 'data-name' : node.name, title : node.name, node.name
