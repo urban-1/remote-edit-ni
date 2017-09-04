@@ -133,6 +133,9 @@ module.exports =
     cloneTree: (node, parent=null) ->
       retNode = {children: {}, parent: parent, name: node.name}
 
+      if node.keep
+        retNode.keep = true
+
       # Loop original node
       for path of node.children
         # Append to clone
