@@ -5,8 +5,9 @@ Path = require 'path'
 module.exports =
   class MiniTreeView extends View
     initialize: ->
-      @items = []
-      @tree = []
+      # Reduced tree (the one we display)
+      @minitree = {}
+      @tree = {root: {children:{}, parent: null, name: "root"}}
 
     @content: ->
       @div class: 'remote-edit-opened-tree', =>
@@ -16,51 +17,81 @@ module.exports =
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'treeUI'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
-    addFile: (file, hostname) ->
-      toadd = {}
+    splitPathParts: (file, hostname) ->
       # explode paths
       pathParts = file.path.split(Path.sep)
       if pathParts[0] == ""
         pathParts.shift()
 
-      # Prepend hostname, so we can use recursion
       pathParts.unshift(hostname)
-      toadd.path = pathParts
-      toadd.meta = file
-      toadd.hostname = hostname
+      return pathParts
 
-      @items.push(toadd)
-      @rebuildTree()
+    addFile: (file, hostname) =>
+      toadd = {}
+
+      pathParts = @splitPathParts(file, hostname)
+
+      # Add hostname if not in already
+      node = @tree.root
+      # Build path as we go
+      pathStr = ""
+
+      for p in pathParts
+        pathStr += Path.sep + p
+        if !(pathStr of node.children)
+          console.debug "Adding " + pathStr
+          node.children[pathStr] = {children: {}, parent: node, name: p}
+
+        node = node.children[pathStr]
+
+      # Node should be pointing to the leaf
+      node.meta = file
+      node.parent.keep = true
+
+      console.debug @tree
+
+      # Now reduce the tree and add meta data
+      @minitree = {root: @cloneTree(@tree.root)}
+      @reduceTree(@minitree.root, "root", 0)
       @refreshUITree()
 
-    removeFile: (file, hostname) ->
-      index = 0
-      foundIndex = -1
+    removeFile: (file, hostname) =>
+      pathParts = @splitPathParts(file, hostname)
+      node = @tree.root
+      console.debug @tree
 
-      # Search for this item and remember index
-      for item in @items
-        if item.hostname == hostname and item.meta.path = file.path
-          console.debug "Removing " +  file.path
-          foundIndex = index
+      pathStr = ""
+      for p in pathParts
+        pathStr += Path.sep + p
+        if !(pathStr of node.children)
           break
 
-        index++
+        node = node.children[pathStr]
 
-      # if we have an index splice
-      if foundIndex > -1
-        @items.splice(foundIndex, 1)
+      # Check if we found it
+      if pathParts[pathParts.length - 1] != node.name
+        console.debug "Could not locate node..."
+        return
 
-      @rebuildTree(@tree.root, "root", 0)
+      # Delete nodes walking up
+      while node.parent
+        parent = node.parent
+        delete parent.children[pathStr]
+        length = (k for own k of parent.children).length
+        if length == 0
+          node = parent
+          pathStr = Path.dirname(pathStr)
+        else
+          break
+
+
+      @minitree = {root: @cloneTree(@tree.root)}
+      console.debug @minitree
+      @reduceTree(@minitree.root, "root", 0)
       @refreshUITree()
 
-    # ... dont ask... gist... TODO: ref
-    merge = (xs...) ->
-      if xs?.length > 0
-        tap {}, (m) -> m[k] = v for k, v of x for x in xs
 
-    tap = (o, fn) -> fn(o); o
-
-    reduceTree: (node, path, level=0) ->
+    reduceTree: (node, path, level=0) =>
       length = (k for own k of node.children).length
 
       # Add meta data to be able to detect icon later (todo: move to render?)
@@ -88,36 +119,34 @@ module.exports =
         @reduceTree(node.children[path], path, level+1)
 
 
-    rebuildTree: ->
-      @tree = {root: children:{}, parent: null, name: "root"}
-      # Loop all items and build the full tree
-      for item in @items
+    #
+    # Utils
+    #
+    # ... dont ask... gist... TODO: ref
+    merge = (xs...) ->
+      if xs?.length > 0
+        tap {}, (m) -> m[k] = v for k, v of x for x in xs
 
-        # Add hostname if not in already
-        node = @tree.root
-        # Build path as we go
-        pathStr = ""
+    tap = (o, fn) -> fn(o); o
 
-        for p in item.path
-          pathStr += Path.sep + p
-          if !(pathStr of node.children)
-            console.debug "Adding " + pathStr
-            node.children[pathStr] = {children: {}, parent: node, name: p}
 
-          node = node.children[pathStr]
+    cloneTree: (node, parent=null) ->
+      retNode = {children: {}, parent: parent, name: node.name}
 
-        # Node should be pointing to the leaf
-        node.meta = item.meta
-        node.parent.keep = true
+      # Loop original node
+      for path of node.children
+        # Append to clone
+        retNode.children[path] = @cloneTree(node.children[path], retNode)
 
-      console.debug @tree
+      return retNode
 
-      # Now reduce the tree and add meta data
-      @reduceTree(@tree.root, "root", 0)
-      console.debug @tree
 
-    refreshUITree: (node=@tree.root, name="root", parentUI=null, level=0) ->
-      return unless @tree?
+
+    #
+    # UI
+    #
+    refreshUITree: (node=@minitree.root, name="root", parentUI=null, level=0) ->
+      return unless @minitree?
 
       # New root
       if level == 0
