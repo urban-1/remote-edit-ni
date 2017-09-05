@@ -6,7 +6,6 @@ module.exports =
   class MiniTreeView extends View
     initialize: ->
       # Reduced tree (the one we display)
-      @minitree = {}
       @tree = {root: {children:{}, parent: null, name: "root"}}
 
     @content: ->
@@ -27,32 +26,41 @@ module.exports =
       return pathParts
 
     addFile: (file, hostname) =>
-      toadd = {}
-
-      pathParts = @splitPathParts(file, hostname)
-
       # Add hostname if not in already
       node = @tree.root
+
+      pathParts = @splitPathParts(file, hostname)
+      console.log pathParts
+
       # Build path as we go
       pathStr = ""
 
+      count = 0
       for p in pathParts
+        count++
         pathStr += Path.sep + p
-        if !(pathStr of node.children)
-          console.debug "Adding " + pathStr
-          node.children[pathStr] = {children: {}, parent: node, name: p}
+
+        # If there move to next node and continue
+        if pathStr of node.children
+          node = node.children[pathStr]
+          continue
+
+        console.debug "Adding " + pathStr
+        node.children[pathStr] = {children: {}, parent: node, name: p}
+
+        if count == 2
+          node.isServer = true
+        else if count > 2
+          node.isFolder = true
 
         node = node.children[pathStr]
 
       # Node should be pointing to the leaf
       node.meta = file
-      node.parent.keep = true
+      delete node["isFolder"]
+      node.isFile = true
 
       console.debug @tree
-
-      # Now reduce the tree and add meta data
-      @minitree = {root: @cloneTree(@tree.root)}
-      @reduceTree(@minitree.root, "root", 0)
       @refreshUITree()
 
     removeFile: (file, hostname) =>
@@ -84,72 +92,15 @@ module.exports =
         else
           break
 
-
-      @minitree = {root: @cloneTree(@tree.root)}
-      console.debug @minitree
-      @reduceTree(@minitree.root, "root", 0)
       @refreshUITree()
-
-
-    reduceTree: (node, path, level=0) =>
-      length = (k for own k of node.children).length
-
-      # Add meta data to be able to detect icon later (todo: move to render?)
-      if level == 1
-        node.isServer = true
-      else if level > 1 and length == 0
-        node.isFile = true
-      else if level > 1
-        node.isFolder = true
-
-      if length == 0
-        return
-
-      # We always keep 0 since it is the host
-      if length == 1 and level > 1 and !node.keep
-        console.debug "Removing " + path
-        # FIXME: merge
-        node.parent.children = merge node.parent.children, node.children
-        delete node.parent.children[path]
-        console.debug node.parent.children
-        node = node.parent
-
-      # in any case now, recurse
-      for path of node.children
-        @reduceTree(node.children[path], path, level+1)
-
-
-    #
-    # Utils
-    #
-    # ... dont ask... gist... TODO: ref
-    merge = (xs...) ->
-      if xs?.length > 0
-        tap {}, (m) -> m[k] = v for k, v of x for x in xs
-
-    tap = (o, fn) -> fn(o); o
-
-
-    cloneTree: (node, parent=null) ->
-      retNode = {children: {}, parent: parent, name: node.name}
-
-      if node.keep
-        retNode.keep = true
-
-      # Loop original node
-      for path of node.children
-        # Append to clone
-        retNode.children[path] = @cloneTree(node.children[path], retNode)
-
-      return retNode
-
-
 
     #
     # UI
     #
-    refreshUITree: (node=@minitree.root, name="root", parentUI=null, level=0) ->
-      return unless @minitree?
+    refreshUITree: (node=@tree.root, name="root", parentUI=null, level=0) ->
+      return unless @tree?
+
+      length = (k for own k of node.children).length
 
       # New root
       if level == 0
@@ -158,15 +109,36 @@ module.exports =
 
       # Depth first...
       for path of node.children
-        # add this node to current parent and use as parent for the rest
-        currentElement = @viewForItem(node.children[path])
-        parentUI.append(currentElement)
 
-        # If not a file item... recurse
-        if !node.children[path].isFile
+        # if folder with one child which is folder, do not display - mark skipping
+        child = node.children[path]
+        childLength = (k for own k of child.children).length
+        skippingCurrent = false
+
+        if child.isFolder and childLength == 1
+          # Ensure that the only child is actually another folder
+          innerChild = null
+          for i of child.children
+            innerChild = child.children[i]
+
+          if innerChild.isFolder
+            skippingCurrent = true
+
+        if skippingCurrent
+          # use the same list we were given...
+          olParent = parentUI
+        else
+          console.debug parentUI
+          # here we either have a legit folder or a server or a file
+          # Add this node to current parent and use as parent for the rest
+          currentElement = @viewForItem(child)
+          parentUI.append(currentElement)
           # The parent node is actually the <ol> element...
           olParent = currentElement.find('ol.list-tree.entries').first()
-          @refreshUITree(node.children[path], path, olParent, level+1)
+
+        # If not a file item... recurse based on the current element set above
+        if !child.isFile
+          @refreshUITree(child, path, olParent, level+1)
 
 
 
