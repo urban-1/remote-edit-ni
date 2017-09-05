@@ -5,6 +5,8 @@ LocalFile = require '../model/local-file'
 
 Dialog = require './dialog'
 MiniTreeView = require './tree-view'
+ElectronDialog = require('electron').remote.dialog
+
 
 fs = require 'fs'
 os = require 'os'
@@ -249,11 +251,18 @@ module.exports =
           if filePane
             filePaneItem = filePane.itemForURI(uri)
             filePane.activateItem(filePaneItem)
-            confirmResult = atom.confirm
-              message: 'Reopen this file?'
-              detailedMessage: 'Unsaved data will be lost.'
-              buttons: ['Yes','No']
+            # confirmResult = atom.confirm
+            #   message: 'Reopen this file?'
+            #   detailedMessage: 'Unsaved data will be lost.'
+            #   buttons: ['Yes','No']
             # confirmResult: Yes = 0, No = 1, Close button = 1
+            confirmResult = ElectronDialog.showMessageBox({
+                    title: "File Already Opened...",
+                    message: "Reopen this file? Unsaved changes will be lost",
+                    type: "warning",
+                    buttons: ["Yes", "No"]
+                })
+
             if confirmResult
               callback(null, null)
             else
