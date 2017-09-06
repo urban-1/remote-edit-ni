@@ -24,7 +24,7 @@ module.exports =
 
     @content: ->
       @div class: 'remote-edit-tree-view remote-edit-resizer tool-panel', 'data-show-on-right-side': false, =>
-        @subview 'treeView', new MiniTreeView()
+        @subview 'treeView', new MiniTreeView(@)
         @div class: 'remote-edit-scroller order--center', =>
           @div class: 'remote-edit-info focusable-panel', click: 'clickInfo', =>
             @p class: 'remote-edit-server', =>
@@ -285,11 +285,11 @@ module.exports =
             (textEditor) =>
               textEditor.onDidDestroy(() =>
                   @host.removeLocalFile(localFile)
-                  @treeView.removeFile(file, @host.hostname)
+                  @treeView.removeFile(localFile)
               )
           )
           # Add it to the tree view
-          @treeView.addFile(file, @host.hostname)
+          @treeView.addFile(localFile)
       )
 
     openDirectory: (dir, callback) =>

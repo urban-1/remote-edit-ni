@@ -4,32 +4,34 @@ Path = require 'path'
 
 module.exports =
   class MiniTreeView extends View
-    initialize: ->
+    initialize: (filesView) ->
       # Reduced tree (the one we display)
       @tree = {root: {children:{}, parent: null, name: "root"}}
+      @filesView = filesView
+      @listenForEvents()
 
     @content: ->
       @div class: 'remote-edit-opened-tree', =>
+        @span class: 'remote-edit-treeview-header inline-block', 'Open Files'
         @div class: 'remote-edit-scroller order--center', =>
           @div class: 'remote-edit-scroller', outlet: 'scroller', =>
-            @span class: 'remote-edit-treeview-header inline-block', 'Open Files'
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'treeUI'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
-    splitPathParts: (file, hostname) ->
+    splitPathParts: (localFile) ->
       # explode paths
-      pathParts = file.path.split(Path.sep)
+      pathParts = localFile.remoteFile.path.split(Path.sep)
       if pathParts[0] == ""
         pathParts.shift()
 
-      pathParts.unshift(hostname)
+      pathParts.unshift(localFile.host.hostname)
       return pathParts
 
-    addFile: (file, hostname) =>
+    addFile: (localFile) =>
       # Add hostname if not in already
       node = @tree.root
 
-      pathParts = @splitPathParts(file, hostname)
+      pathParts = @splitPathParts(localFile)
       console.log pathParts
 
       # Build path as we go
@@ -56,15 +58,15 @@ module.exports =
         node = node.children[pathStr]
 
       # Node should be pointing to the leaf
-      node.meta = file
+      node.meta = localFile
       delete node["isFolder"]
       node.isFile = true
 
       console.debug @tree
       @refreshUITree()
 
-    removeFile: (file, hostname) =>
-      pathParts = @splitPathParts(file, hostname)
+    removeFile: (localFile) =>
+      pathParts = @splitPathParts(localFile)
       node = @tree.root
       console.debug @tree
 
@@ -132,6 +134,8 @@ module.exports =
           # here we either have a legit folder or a server or a file
           # Add this node to current parent and use as parent for the rest
           currentElement = @viewForItem(child)
+          currentElement.data('node', child)
+          currentElement.data('node-path', path)
           parentUI.append(currentElement)
           # The parent node is actually the <ol> element...
           olParent = currentElement.find('ol.list-tree.entries').first()
@@ -140,7 +144,47 @@ module.exports =
         if !child.isFile
           @refreshUITree(child, path, olParent, level+1)
 
+    deselect: ->
+        @treeUI.find('li.selected').removeClass('selected');
 
+    listenForEvents: ->
+      # @treeUI.on 'mousedown', 'li', (e) =>
+      #   node = $(e.target).closest('li').addClass('selected').data('node')
+      #   console.log(e)
+      #   if e.which == 1
+      #     @confirmed(@selectedItem)
+      #     e.preventDefault()
+      #     false
+      #   else if e.which == 3
+      #     false
+
+      # Folder/Server Click
+      @on 'mousedown', 'div.list-item', (e) =>
+        if e.which != 1
+          return
+
+        uiNode = $(e.target).closest('li')
+        node = uiNode.addClass('selected').data('node')
+        @deselect()
+
+
+
+        if node.isCollapsed
+          console.log("Expanding")
+          node.isCollapsed = false
+          uiNode.find('ol').first().removeClass('collapsed')
+        else
+          console.log("Colapsing")
+          node.isCollapsed = true
+          uiNode.find('ol').first().addClass('collapsed')
+
+      # File Click
+      @on 'mousedown', 'li.list-item', (e) =>
+        if e.which != 1
+          return
+
+        node = $(e.target).closest('li').addClass('selected').data('node')
+        console.log(node)
 
     viewForItem: (node) ->
       icon = switch
