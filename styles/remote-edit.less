@@ -22,7 +22,7 @@
   text-decoration: none;
 }
 
-.remote-edit-tree-view {
+.remote-edit-tree-views {
   min-width: 200px;
   height: 100%;
 }
@@ -81,7 +81,7 @@
   }
 }
 
-.remote-edit-scroller {
+.remote-edit-file-scroller {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -89,7 +89,7 @@
   height: 100%;
 }
 
-.remote-edit-tree-view .list-tree {
+.remote-edit-tree-views .list-tree {
   flex-grow: 1;
   flex-shrink: 0;
   isolation: isolate;
@@ -97,7 +97,6 @@
   min-height: 90%;
   padding-left: @component-icon-padding;
   padding-right: @component-padding;
-  position: relative;
 
   .header {
     position: relative;
@@ -136,6 +135,11 @@
 
 
 .remote-edit-opened-tree {
+
+    .list-tree {
+        position: static;
+    }
+
     li.collapsed ol {
         display: none;
     }
@@ -158,16 +162,16 @@
         content: "\f078";
     }
 
-    // .list-item-wrap::before {
-    //     content: '';
-    //     background-color: #3a3f4b;
-    //     position: absolute;
-    //     left: 0;
-    //     right: 0;
-    //     height: 25px;
-    // }
-    //
-    // .list-item-wrap .selected::before {
-    //     background-color: #2c313a;
-    // }
+    .list-item-wrap::before {
+        content: '';
+        background-color: #3a3f4b;
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 25px;
+    }
+
+    .list-item-wrap .selected::before {
+        background-color: #2c313a;
+    }
 }

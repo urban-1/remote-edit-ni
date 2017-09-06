@@ -16,17 +16,21 @@
 ]
 
 'context-menu':
-   '.remote-edit-tree-view': [
-     {'label': 'Toggle files view', 'command': 'remote-edit:toggle-files-view'}
-     {'type': 'separator'}
-     {'label': 'Reload current folder', 'command': 'remote-edit:reload-folder'}
-     {'type': 'separator'}
-     {'label': 'Create folder', 'command': 'remote-edit:create-folder'}
-     {'label': 'Create file', 'command': 'remote-edit:create-file'}
-     {'label': 'Rename', 'command': 'remote-edit:rename-folder-file'}
-     {'label': 'Remove folder/file', 'command': 'remote-edit:remove-folder-file'}
-     {'type': 'separator'}
-     #{'label': 'Copy', 'command': 'remote-edit:copy-folder-file'}
-     {'label': 'Cut', 'command': 'remote-edit:cut-folder-file'}
-     {'label': 'Paste', 'command': 'remote-edit:paste-folder-file'}
+  '.remote-edit-opened-tree li': [
+     {'label': 'Show in browser', 'command': 'remote-edit:show-in-browser'}
+     {'label': 'Close', 'command': 'remote-edit:close'}
+  ]
+  '.remote-edit-file-scroller': [
+    {'label': 'Toggle files view', 'command': 'remote-edit:toggle-files-view'}
+    {'type': 'separator'}
+    {'label': 'Reload current folder', 'command': 'remote-edit:reload-folder'}
+    {'type': 'separator'}
+    {'label': 'Create folder', 'command': 'remote-edit:create-folder'}
+    {'label': 'Create file', 'command': 'remote-edit:create-file'}
+    {'label': 'Rename', 'command': 'remote-edit:rename-folder-file'}
+    {'label': 'Remove folder/file', 'command': 'remote-edit:remove-folder-file'}
+    {'type': 'separator'}
+    #{'label': 'Copy', 'command': 'remote-edit:copy-folder-file'}
+    {'label': 'Cut', 'command': 'remote-edit:cut-folder-file'}
+    {'label': 'Paste', 'command': 'remote-edit:paste-folder-file'}
   ]

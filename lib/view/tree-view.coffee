@@ -13,8 +13,8 @@ module.exports =
     @content: ->
       @div class: 'remote-edit-opened-tree', =>
         @span class: 'remote-edit-treeview-header inline-block', 'Open Files'
-        @div class: 'remote-edit-scroller order--center', =>
-          @div class: 'remote-edit-scroller', outlet: 'scroller', =>
+        @div class: 'remote-edit-file-scroller order--center', =>
+          @div class: 'remote-edit-file-scroller', outlet: 'scroller', =>
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'treeUI'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
@@ -148,15 +148,11 @@ module.exports =
         @treeUI.find('li.selected').removeClass('selected');
 
     listenForEvents: ->
-      # @treeUI.on 'mousedown', 'li', (e) =>
-      #   node = $(e.target).closest('li').addClass('selected').data('node')
-      #   console.log(e)
-      #   if e.which == 1
-      #     @confirmed(@selectedItem)
-      #     e.preventDefault()
-      #     false
-      #   else if e.which == 3
-      #     false
+      @treeUI.on 'mousedown', (e) =>
+        # console.debug e
+        # e.preventDefault()
+        # false
+
 
       # Folder/Server Click
       @on 'mousedown', 'div.list-item', (e) =>
@@ -164,9 +160,9 @@ module.exports =
           return
 
         if e.which == 1
+            @deselect()
             uiNode = $(e.target).closest('li')
             node = uiNode.addClass('selected').data('node')
-            @deselect()
 
             if node.isCollapsed
               console.log("Expanding")
@@ -179,11 +175,10 @@ module.exports =
 
       # File Click
       @on 'mousedown', 'li.list-item', (e) =>
-        if e.which != 1
-          return
-
-        node = $(e.target).closest('li').addClass('selected').data('node')
-        console.log(node)
+        if e.which == 1
+            @deselect()
+            node = $(e.target).closest('li').addClass('selected').data('node')
+            console.log(node)
 
     viewForItem: (node) ->
       icon = switch

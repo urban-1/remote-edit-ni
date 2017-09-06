@@ -23,9 +23,9 @@ module.exports =
   class FilesView extends View
 
     @content: ->
-      @div class: 'remote-edit-tree-view remote-edit-resizer tool-panel', 'data-show-on-right-side': false, =>
+      @div class: 'remote-edit-tree-views remote-edit-resizer tool-panel', 'data-show-on-right-side': false, =>
         @subview 'treeView', new MiniTreeView(@)
-        @div class: 'remote-edit-scroller order--center', =>
+        @div class: 'remote-edit-file-scroller', =>
           @div class: 'remote-edit-info focusable-panel', click: 'clickInfo', =>
             @p class: 'remote-edit-server', =>
               @span class: 'remote-edit-server-type inline-block', 'FTP:'
@@ -38,7 +38,7 @@ module.exports =
             @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
             # @subview 'filter', new SimpleTextView(mini: true, password: true)
 
-          @div class: 'remote-edit-scroller', outlet: 'scroller', =>
+          @div class: 'remote-edit-files-list', =>
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
           @div class: 'remote-edit-message', outlet: 'message'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
