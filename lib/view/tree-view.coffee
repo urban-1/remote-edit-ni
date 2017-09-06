@@ -160,23 +160,22 @@ module.exports =
 
       # Folder/Server Click
       @on 'mousedown', 'div.list-item', (e) =>
-        if e.which != 1
+        if e.which == 3
           return
 
-        uiNode = $(e.target).closest('li')
-        node = uiNode.addClass('selected').data('node')
-        @deselect()
+        if e.which == 1
+            uiNode = $(e.target).closest('li')
+            node = uiNode.addClass('selected').data('node')
+            @deselect()
 
-
-
-        if node.isCollapsed
-          console.log("Expanding")
-          node.isCollapsed = false
-          uiNode.find('ol').first().removeClass('collapsed')
-        else
-          console.log("Colapsing")
-          node.isCollapsed = true
-          uiNode.find('ol').first().addClass('collapsed')
+            if node.isCollapsed
+              console.log("Expanding")
+              node.isCollapsed = false
+              uiNode.removeClass('collapsed')
+            else
+              console.log("Colapsing")
+              node.isCollapsed = true
+              uiNode.addClass('collapsed')
 
       # File Click
       @on 'mousedown', 'li.list-item', (e) =>
@@ -195,7 +194,7 @@ module.exports =
 
       if node.isServer or node.isFolder
         $$ ->
-          @li class: 'list-nested-item folder', =>
+          @li class: 'list-nested-item folder ', =>
               @div class: 'header list-item', =>
                   @span class: 'icon '+ icon, 'data-name' : node.name, title : node.name, node.name
               @ol class: 'list-tree entries'

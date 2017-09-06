@@ -133,3 +133,41 @@
     }
   }
 }
+
+
+.remote-edit-opened-tree {
+    li.collapsed ol {
+        display: none;
+    }
+
+
+    li > .header::before {
+        font-family: 'Octicons Regular';
+        font-weight: normal;
+        font-style: normal;
+        display: inline-block;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        text-decoration: none;
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+        content: "\f0a3";
+    }
+    li.collapsed > .header::before {
+        content: "\f078";
+    }
+
+    // .list-item-wrap::before {
+    //     content: '';
+    //     background-color: #3a3f4b;
+    //     position: absolute;
+    //     left: 0;
+    //     right: 0;
+    //     height: 25px;
+    // }
+    //
+    // .list-item-wrap .selected::before {
+    //     background-color: #2c313a;
+    // }
+}
