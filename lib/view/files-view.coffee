@@ -24,7 +24,7 @@ module.exports =
 
     @content: ->
       @div class: 'remote-edit-tree-views remote-edit-resizer tool-panel', 'data-show-on-right-side': false, =>
-        @subview 'treeView', new MiniTreeView(@)
+        @subview 'treeView', new MiniTreeView()
         @div class: 'remote-edit-info focusable-panel', click: 'clickInfo', =>
           @p class: 'remote-edit-server', =>
             @span class: 'remote-edit-server-type inline-block', 'FTP:'
@@ -76,6 +76,7 @@ module.exports =
       @disposables = new CompositeDisposable
       @listenForEvents()
       @cutPasteBuffer = {}
+      @treeView.setFilesView(@)
 
     connect: (connectionOptions = {}, connect_path = false) ->
       console.debug "re-connecting (FilesView::connect) to #{connect_path}"
@@ -201,6 +202,11 @@ module.exports =
       @path = upath.normalize(next)
       @host.lastOpenDirectory = @path
       @server_folder.html(@path)
+
+    setHost: (host) ->
+      @host = host
+      @connect()
+      @show()
 
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
@@ -367,9 +373,11 @@ module.exports =
       @on 'dblclick', '.remote-edit-resize-handle', =>
         @resizeToFitContent()
 
-      @on 'mousedown', '.remote-edit-resize-handle', (e) => @resizeStarted(e)
+      @on 'mousedown', '.remote-edit-resize-handle', (e) =>
+        @resizeStarted(e)
 
-      @filter.on "keyup", (e) => @doFilter(e)
+      @filter.on "keyup", (e) =>
+        @doFilter(e)
 
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:open', =>
         item = @getSelectedItem()

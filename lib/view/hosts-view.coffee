@@ -79,9 +79,10 @@ module.exports =
     confirmed: (item) ->
       @cancel()
       filesView = module.parent.exports.createFilesView()
-      filesView.host = item
-      filesView.connect()
-      filesView.show()
+      filesView.setHost(item)
+      # filesView.host = item
+      # filesView.connect()
+      # filesView.show()
 
     listenForEvents: ->
       @disposables.add atom.commands.add 'atom-workspace', 'hostview:delete', =>

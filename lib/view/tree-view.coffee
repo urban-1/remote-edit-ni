@@ -5,7 +5,7 @@ Path = require 'path'
 
 module.exports =
   class MiniTreeView extends View
-    initialize: (@filesView) ->
+    initialize: () ->
       # Reduced tree (the one we display)
       @tree = {root: {children:{}, parent: null, name: "root"}}
       @disposables = new CompositeDisposable
@@ -14,6 +14,9 @@ module.exports =
 
     destroy: ->
       @disposables.dispose()
+
+    setFilesView: (filesView) ->
+      @filesView = filesView
 
     @content: ->
       @div class: 'remote-edit-opened-tree', =>
@@ -36,8 +39,8 @@ module.exports =
       # Add hostname if not in already
       node = @tree.root
 
+      # Split to path
       pathParts = @splitPathParts(localFile)
-      console.log pathParts
 
       # Build path as we go
       pathStr = ""
@@ -151,7 +154,6 @@ module.exports =
           # use the same list we were given...
           olParent = parentUI
         else
-          console.debug parentUI
           # here we either have a legit folder or a server or a file
           # Add this node to current parent and use as parent for the rest
           currentElement = @viewForItem(child)
@@ -224,6 +226,40 @@ module.exports =
           @closeFileFromNode(node)
         else
           @closeFolderFromNode(node)
+
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:show-in-browser', =>
+        node = @rightClickNode.data('node')
+        console.log node
+
+        folder = null
+        file = null
+        if node.isFile
+          host = node.meta.host
+          folder = node.meta.remoteFile.dirName
+        else
+          folder = @rightClickNode.data('node-path')
+          folder = folder.substr(folder.indexOf(Path.sep, 1))
+
+
+          # Walk down until you find a file - anyfile
+          for k, tmpNode of node.children
+            while !tmpNode.isFile
+              # Get first child
+              for k, tmpNode of tmpNode.children
+                break
+
+            # Break outer for
+            break
+
+          host = tmpNode.meta.host
+
+
+
+        if folder
+          @filesView.setHost(host)
+          @filesView.openDirectory(folder)
+          #if file
+
 
     viewForItem: (node) ->
       icon = switch
