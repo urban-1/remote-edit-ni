@@ -25,19 +25,18 @@ module.exports =
     @content: ->
       @div class: 'remote-edit-tree-views remote-edit-resizer tool-panel', 'data-show-on-right-side': false, =>
         @subview 'treeView', new MiniTreeView(@)
-        @div class: 'remote-edit-file-scroller', =>
-          @div class: 'remote-edit-info focusable-panel', click: 'clickInfo', =>
-            @p class: 'remote-edit-server', =>
-              @span class: 'remote-edit-server-type inline-block', 'FTP:'
-              @span class: 'remote-edit-server-alias inline-block highlight', outlet: 'server_alias', 'unknown'
-            @p class: 'remote-edit-folder text-bold', =>
-              @span 'Folder: '
-              @span outlet: 'server_folder', 'unknown'
-            # @tag 'atom-text-editor', 'mini': true, class: 'native-key-bindings', outlet: 'filter'
-            # Gettext does not exist cause there is no model behind this...
-            @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
-            # @subview 'filter', new SimpleTextView(mini: true, password: true)
+        @div class: 'remote-edit-info focusable-panel', click: 'clickInfo', =>
+          @p class: 'remote-edit-server', =>
+            @span class: 'remote-edit-server-type inline-block', 'FTP:'
+            @span class: 'remote-edit-server-alias inline-block highlight', outlet: 'server_alias', 'unknown'
+          @p class: 'remote-edit-folder text-bold', =>
+            @span 'Folder: '
+            @span outlet: 'server_folder', 'unknown'
+          # @tag 'atom-text-editor', 'mini': true, class: 'native-key-bindings', outlet: 'filter'
+          # Gettext does not exist cause there is no model behind this...
+          @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
 
+        @div class: 'remote-edit-file-scroller', =>
           @div class: 'remote-edit-files-list', =>
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
           @div class: 'remote-edit-message', outlet: 'message'

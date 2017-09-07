@@ -1,14 +1,19 @@
 {$, $$, View} = require 'atom-space-pen-views'
+{CompositeDisposable, Emitter} = require 'atom'
 Path = require 'path'
 
 
 module.exports =
   class MiniTreeView extends View
-    initialize: (filesView) ->
+    initialize: (@filesView) ->
       # Reduced tree (the one we display)
       @tree = {root: {children:{}, parent: null, name: "root"}}
-      @filesView = filesView
+      @disposables = new CompositeDisposable
+      @rightClickNode = null
       @listenForEvents()
+
+    destroy: ->
+      @disposables.dispose()
 
     @content: ->
       @div class: 'remote-edit-opened-tree', =>
@@ -64,6 +69,22 @@ module.exports =
 
       console.debug @tree
       @refreshUITree()
+
+    closeFileFromNode: (node) =>
+      uri = Path.normalize(node.meta.path)
+      filePane = atom.workspace.paneForURI(uri)
+      filePaneItem = filePane.itemForURI(uri)
+      filePane.destroyItem(filePaneItem)
+
+    closeFolderFromNode: (node) =>
+      for path of node.children
+        if node.children[path].isFile
+          @closeFileFromNode(node.children[path])
+          continue
+
+        # Folders and servers
+        @closeFolderFromNode(node.children[path])
+
 
     removeFile: (localFile) =>
       pathParts = @splitPathParts(localFile)
@@ -156,29 +177,53 @@ module.exports =
 
       # Folder/Server Click
       @on 'mousedown', 'div.list-item', (e) =>
-        if e.which == 3
+
+        if e.which == 2
           return
 
-        if e.which == 1
-            @deselect()
-            uiNode = $(e.target).closest('li')
-            node = uiNode.addClass('selected').data('node')
+        uiNode = $(e.target).closest('li')
 
-            if node.isCollapsed
-              console.log("Expanding")
-              node.isCollapsed = false
-              uiNode.removeClass('collapsed')
-            else
-              console.log("Colapsing")
-              node.isCollapsed = true
-              uiNode.addClass('collapsed')
+        if e.which == 1
+          @deselect()
+          node = uiNode.addClass('selected').data('node')
+
+          if node.isCollapsed
+            node.isCollapsed = false
+            uiNode.removeClass('collapsed')
+          else
+            node.isCollapsed = true
+            uiNode.addClass('collapsed')
+
+        else if e.which == 3
+          @rightClickNode = uiNode
 
       # File Click
       @on 'mousedown', 'li.list-item', (e) =>
+        if e.which == 2
+          return
+
+        uiNode = $(e.target).closest('li')
+
         if e.which == 1
-            @deselect()
-            node = $(e.target).closest('li').addClass('selected').data('node')
-            console.log(node)
+          @deselect()
+          node = uiNode.addClass('selected').data('node')
+
+          # Get local path
+          uri = Path.normalize(node.meta.path)
+          filePane = atom.workspace.paneForURI(uri)
+          filePane.activateItemForURI(uri)
+
+        else if e.which == 3
+          @rightClickNode = uiNode
+
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:close-from-tree', =>
+        # Destroy the item (TextEditor) to trigger the onDidDestroy which also
+        # cleans up the remoteEdit.json...
+        node = @rightClickNode.data('node')
+        if node.isFile
+          @closeFileFromNode(node)
+        else
+          @closeFolderFromNode(node)
 
     viewForItem: (node) ->
       icon = switch

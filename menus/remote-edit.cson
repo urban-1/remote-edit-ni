@@ -18,9 +18,10 @@
 'context-menu':
   '.remote-edit-opened-tree li': [
      {'label': 'Show in browser', 'command': 'remote-edit:show-in-browser'}
-     {'label': 'Close', 'command': 'remote-edit:close'}
+     {'label': 'Close', 'command': 'remote-edit:close-from-tree'}
   ]
-  '.remote-edit-file-scroller': [
+
+  '.remote-edit-files-list': [
     {'label': 'Toggle files view', 'command': 'remote-edit:toggle-files-view'}
     {'type': 'separator'}
     {'label': 'Reload current folder', 'command': 'remote-edit:reload-folder'}
