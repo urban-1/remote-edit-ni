@@ -78,6 +78,12 @@ module.exports =
       @cutPasteBuffer = {}
       @treeView.setFilesView(@)
 
+      atom.config.observe 'remote-edit2.showOpenedTree', (bool) =>
+        if bool
+          @treeView.removeClass('hidden')
+        else
+          @treeView.addClass('hidden')
+
     connect: (connectionOptions = {}, connect_path = false) ->
       console.debug "re-connecting (FilesView::connect) to #{connect_path}"
       dir = upath.normalize(if connect_path then connect_path else if atom.config.get('remote-edit2.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory)
@@ -162,7 +168,7 @@ module.exports =
         else 'icon-file-text'
       $$ ->
         @li class: 'list-item list-selectable-item two-lines', =>
-          @span class: 'primary-line icon '+ icon, 'data-name' : item.name, title : item.name, item.name
+          @span class: 'primary-line icon '+ icon, 'data-path': item.path, 'data-name' : item.name, title : item.name, item.name
           if item.name != '..'
             @span class: 'text-subtle text-smaller', "S: #{item.size}, M: #{item.lastModified}, P: #{item.permissions}"
 
@@ -337,6 +343,7 @@ module.exports =
       ], (err, savePath) ->
         callback(err, savePath)
       )
+
     clickInfo: (event, element) ->
       #console.log event
 
@@ -389,6 +396,10 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:previous-folder', =>
         if @path.length > 1
           @openDirectory(@path + path.sep + '..')
+
+    selectItemByPath: (path) ->
+      @deselect()
+      $('li.list-item span[data-path="'+path+'"]').closest('li').addClass('selected')
 
     setItems: (@items=[]) ->
       @message.hide()

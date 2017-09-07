@@ -55,7 +55,6 @@ module.exports =
           node = node.children[pathStr]
           continue
 
-        console.debug "Adding " + pathStr
         node.children[pathStr] = {children: {}, parent: node, name: p}
 
         if count == 2
@@ -70,7 +69,6 @@ module.exports =
       delete node["isFolder"]
       node.isFile = true
 
-      console.debug @tree
       @refreshUITree()
 
     closeFileFromNode: (node) =>
@@ -92,7 +90,6 @@ module.exports =
     removeFile: (localFile) =>
       pathParts = @splitPathParts(localFile)
       node = @tree.root
-      console.debug @tree
 
       pathStr = ""
       for p in pathParts
@@ -104,7 +101,6 @@ module.exports =
 
       # Check if we found it
       if pathParts[pathParts.length - 1] != node.name
-        console.debug "Could not locate node..."
         return
 
       # Delete nodes walking up
@@ -196,8 +192,11 @@ module.exports =
             node.isCollapsed = true
             uiNode.addClass('collapsed')
 
+          e.preventDefault()
+
         else if e.which == 3
           @rightClickNode = uiNode
+          e.preventDefault()
 
       # File Click
       @on 'mousedown', 'li.list-item', (e) =>
@@ -214,9 +213,11 @@ module.exports =
           uri = Path.normalize(node.meta.path)
           filePane = atom.workspace.paneForURI(uri)
           filePane.activateItemForURI(uri)
+          e.preventDefault()
 
         else if e.which == 3
           @rightClickNode = uiNode
+          e.preventDefault()
 
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:close-from-tree', =>
         # Destroy the item (TextEditor) to trigger the onDidDestroy which also
@@ -229,13 +230,13 @@ module.exports =
 
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:show-in-browser', =>
         node = @rightClickNode.data('node')
-        console.log node
 
         folder = null
         file = null
         if node.isFile
           host = node.meta.host
           folder = node.meta.remoteFile.dirName
+          file = node.meta.remoteFile.path
         else
           folder = @rightClickNode.data('node-path')
           folder = folder.substr(folder.indexOf(Path.sep, 1))
@@ -253,12 +254,15 @@ module.exports =
 
           host = tmpNode.meta.host
 
-
-
         if folder
           @filesView.setHost(host)
-          @filesView.openDirectory(folder)
-          #if file
+
+          # Select the file after the connection
+          @filesView.openDirectory(folder, () =>
+            if file
+              @filesView.selectItemByPath(file)
+          )
+
 
 
     viewForItem: (node) ->

@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 # Import needed to register deserializer
 RemoteEditEditor = require './model/remote-edit-editor'
-
+os = require 'os'
 
 
 # Deferred requirements
@@ -36,11 +36,11 @@ module.exports =
     sshPrivateKeyPath:
       title: 'Path to private SSH key'
       type: 'string'
-      default: '~/.ssh/id_rsa'
+      default:  os.homedir() + '/.ssh/id_rsa'
     defaultSerializePath:
       title: 'Default path to serialize remoteEdit data'
       type: 'string'
-      default: '~/.atom/remoteEdit.json'
+      default: os.homedir() + '/.atom/remoteEdit.json'
     agentToUse:
       title: 'SSH agent'
       description: 'Overrides default SSH agent. See ssh2 docs for more info.'
@@ -59,7 +59,7 @@ module.exports =
       title: 'Clear file list'
       description: 'When enabled, the open files list will be cleared on initialization'
       type: 'boolean'
-      default: false
+      default: true
     rememberLastOpenDirectory:
       title: 'Remember last open directory'
       description: 'When enabled, browsing a host will return you to the last directory you entered'
@@ -85,6 +85,10 @@ module.exports =
         port:
           type: 'boolean'
           default: false
+    showOpenedTree:
+      title: 'Show Opened Files Tree'
+      type: 'boolean'
+      default: true
 
 
   activate: (state) ->
