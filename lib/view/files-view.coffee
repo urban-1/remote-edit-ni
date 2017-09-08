@@ -25,18 +25,22 @@ module.exports =
     @content: ->
       @div class: 'remote-edit-tree-views remote-edit-resizer tool-panel', 'data-show-on-right-side': false, =>
         @subview 'treeView', new MiniTreeView()
+        @div class: 'remote-edit-panel-toggle', =>
+          @span class: 'before  icon-chevron-up'
+          @span class: 'middle icon-unfold'
+          @span class: 'after icon-chevron-down'
         @div class: 'remote-edit-info focusable-panel', click: 'clickInfo', =>
           @p class: 'remote-edit-server', =>
-            @span class: 'remote-edit-server-type inline-block', 'FTP:'
+            @span class: 'remote-edit-server-type inline-block octicon-clippy', 'FTP:'
             @span class: 'remote-edit-server-alias inline-block highlight', outlet: 'server_alias', 'unknown'
           @p class: 'remote-edit-folder text-bold', =>
             @span 'Folder: '
             @span outlet: 'server_folder', 'unknown'
+
+        @div class: 'remote-edit-file-scroller', outlet: 'listScroller', =>
           # @tag 'atom-text-editor', 'mini': true, class: 'native-key-bindings', outlet: 'filter'
           # Gettext does not exist cause there is no model behind this...
           @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
-
-        @div class: 'remote-edit-file-scroller', =>
           @div class: 'remote-edit-files-list', =>
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
           @div class: 'remote-edit-message', outlet: 'message'
@@ -58,7 +62,6 @@ module.exports =
           return
 
       # Hide the elements that do not match the filter's value
-      console.debug "checking for " + @filter.val()
       if @filter.val().length > 0
         @list.find('li span').each (index, item) =>
           if ! $(item).text().match(@filter.val())
@@ -382,6 +385,28 @@ module.exports =
 
       @on 'mousedown', '.remote-edit-resize-handle', (e) =>
         @resizeStarted(e)
+
+      @on 'mousedown', '.remote-edit-panel-toggle .after', (e) =>
+        if e.which != 1
+          e.preventDefault()
+          false
+        @listScroller.addClass("hidden")
+        @treeView.removeClass("hidden")
+
+      @on 'mousedown', '.remote-edit-panel-toggle .before', (e) =>
+        if e.which != 1
+          e.preventDefault()
+          false
+        @listScroller.removeClass("hidden")
+        @treeView.addClass("hidden")
+
+      @on 'mousedown', '.remote-edit-panel-toggle .middle', (e) =>
+        if e.which != 1
+          e.preventDefault()
+          false
+
+        @listScroller.removeClass("hidden")
+        @treeView.removeClass("hidden")
 
       @filter.on "keyup", (e) =>
         @doFilter(e)

@@ -184,11 +184,12 @@ module.exports =
 
         if e.which == 1
           @deselect()
-          node = uiNode.addClass('selected').data('node')
+
+          node = uiNode.data('node')
+          uiNode.addClass('selected')
 
           if node.isCollapsed
             node.isCollapsed = false
-            console.log "Expanding " + node.name
             uiNode.removeClass('collapsed')
           else
             node.isCollapsed = true

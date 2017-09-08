@@ -45,7 +45,7 @@
   display: flex;
   flex-direction: column;
   padding: 3px 10px;
-  min-height: 70px;
+  min-height: 50px;
   p {
     margin: 0;
     overflow: hidden;
@@ -178,12 +178,10 @@
     .list-entries > li div {
         height: 2em;
         color: #9da5b4;
-        white-space: nowrap;
     }
 
     .list-entries li.selected > div > span {
         color: #d7dae0;
-        white-space: nowrap;
     }
 
     // Expanded folder
@@ -209,17 +207,47 @@
         content: "\f078";
     }
 
-    .list-entries li::before {
-        content: '';
-        position: fixed;
-        margin-top: -2px;
-        left: 0;
-        right: 0;
-        height: 25px;
-        z-index: -1;
-    }
+    // TODO: FIXME: The following never worked... weird behaviour
+    // .list-entries li::before {
+    //     content: '';
+    //     position: absolute;
+    //     margin-top: -2px;
+    //     left: 0;
+    //     right: 0;
+    //     height: 25px;
+    //     z-index: -1;
+    // }
+    //
+    // .list-entries li.selected::before {
+    //     background-color: #2c313a;
+    // }
+}
 
-    .list-entries li.selected::before {
-        background-color: #2c313a;
-    }
+.remote-edit-panel-toggle {
+    height: 18px;
+    text-align: center;
+    background-color: @tab-bar-border-color;
+    // background-color: #47494c;
+
+}
+
+.remote-edit-panel-toggle .before,
+.remote-edit-panel-toggle .after,
+.remote-edit-panel-toggle .middle {
+    color: #31363f;
+    display: inline-block;
+    -webkit-font-smoothing: antialiased;
+    font-size: 12px;
+    width: 12px;
+    height: 12px;
+    float: left;
+    padding-left: 4px;
+}
+.remote-edit-panel-toggle .middle {
+    display: inline-block;
+    float: none;
+}
+.remote-edit-panel-toggle .after {
+    float: right;
+    padding-right: 20px;
 }
