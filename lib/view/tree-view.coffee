@@ -20,11 +20,11 @@ module.exports =
 
     @content: ->
       @div class: 'remote-edit-opened-tree', =>
+        #@div class: 'remote-edit-treeview-header', =>
         @span class: 'remote-edit-treeview-header inline-block', 'Open Files'
-        @div class: 'remote-edit-file-scroller order--center', =>
-          @div class: 'remote-edit-file-scroller', outlet: 'scroller', =>
+        @div class: 'remote-edit-file-scroller',  =>
+          @div class: 'remote-edit-treeview-list', =>
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'treeUI'
-        @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
     splitPathParts: (localFile) ->
       # explode paths
@@ -238,8 +238,11 @@ module.exports =
           folder = node.meta.remoteFile.dirName
           file = node.meta.remoteFile.path
         else
-          folder = @rightClickNode.data('node-path')
-          folder = folder.substr(folder.indexOf(Path.sep, 1))
+
+          folder = "/"
+          if node.isFolder
+            folder = @rightClickNode.data('node-path')
+            folder = folder.substr(folder.indexOf(Path.sep, 1))
 
 
           # Walk down until you find a file - anyfile
@@ -274,11 +277,11 @@ module.exports =
 
       if node.isServer or node.isFolder
         $$ ->
-          @li class: 'list-nested-item folder ', =>
+          @li class: 'list-nested-item folder list-item-selectable', =>
               @div class: 'header list-item', =>
                   @span class: 'icon '+ icon, 'data-name' : node.name, title : node.name, node.name
               @ol class: 'list-tree entries'
       else
         $$ ->
-          @li class: 'list-item file', =>
+          @li class: 'list-item file list-item-selectable', =>
             @span class: 'icon '+ icon, 'data-name' : node.name, title : node.name, node.name

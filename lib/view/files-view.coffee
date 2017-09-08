@@ -37,7 +37,7 @@ module.exports =
           @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
 
         @div class: 'remote-edit-file-scroller', =>
-          @div, =>
+          @div class: 'remote-edit-files-list', =>
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
           @div class: 'remote-edit-message', outlet: 'message'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'

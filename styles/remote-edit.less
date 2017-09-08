@@ -140,8 +140,18 @@
 
 .remote-edit-opened-tree {
 
+    .remote-edit-treeview-header {
+        text-align: center;
+        padding: 8px;
+        color: #d7dae0;
+    }
+
     .list-tree {
-        position: static;
+        // position: static;
+        flex-grow: 1;
+        flex-shrink: 0;
+        isolation: isolate;
+        min-width: -webkit-min-content;
     }
 
     li.collapsed ol {
@@ -166,16 +176,15 @@
         content: "\f078";
     }
 
-    .list-item-wrap::before {
+    .list-item-selectable::before {
         content: '';
-        background-color: #3a3f4b;
         position: absolute;
         left: 0;
         right: 0;
         height: 25px;
     }
 
-    .list-item-wrap .selected::before {
+    .list-item-selectable.selected::before {
         background-color: #2c313a;
     }
 }
