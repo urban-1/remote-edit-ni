@@ -365,7 +365,7 @@ module.exports =
 
     resizeToFitContent: ->
       @width(1) # Shrink to measure the minimum width of list
-      @width(@list.outerWidth())
+      @width(Math.max(@list.outerWidth(), @treeView.treeUI.outerWidth()+10))
 
     listenForEvents: ->
       @list.on 'mousedown', 'li', (e) =>
