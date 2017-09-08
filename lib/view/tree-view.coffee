@@ -24,7 +24,7 @@ module.exports =
         @span class: 'remote-edit-treeview-header inline-block', 'Open Files'
         @div class: 'remote-edit-file-scroller',  =>
           @div class: 'remote-edit-treeview-list', =>
-            @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'treeUI'
+            @ol class: 'list-entries full-menu focusable-panel', tabindex: -1, outlet: 'treeUI'
 
     splitPathParts: (localFile) ->
       # explode paths
@@ -68,6 +68,7 @@ module.exports =
       node.meta = localFile
       delete node["isFolder"]
       node.isFile = true
+      node.selected = true
 
       @refreshUITree()
 
@@ -157,7 +158,7 @@ module.exports =
           currentElement.data('node-path', path)
           parentUI.append(currentElement)
           # The parent node is actually the <ol> element...
-          olParent = currentElement.find('ol.list-tree.entries').first()
+          olParent = currentElement.find('ol.list-entries').first()
 
         # If not a file item... recurse based on the current element set above
         if !child.isFile
@@ -174,10 +175,10 @@ module.exports =
 
 
       # Folder/Server Click
-      @on 'mousedown', 'div.list-item', (e) =>
+      @on 'mousedown', 'li.folder', (e) =>
 
         if e.which == 2
-          return
+          return false
 
         uiNode = $(e.target).closest('li')
 
@@ -187,21 +188,22 @@ module.exports =
 
           if node.isCollapsed
             node.isCollapsed = false
+            console.log "Expanding " + node.name
             uiNode.removeClass('collapsed')
           else
             node.isCollapsed = true
             uiNode.addClass('collapsed')
 
-          e.preventDefault()
-
         else if e.which == 3
           @rightClickNode = uiNode
-          e.preventDefault()
+
+        e.preventDefault()
+        false
 
       # File Click
-      @on 'mousedown', 'li.list-item', (e) =>
+      @on 'mousedown', 'li.file', (e) =>
         if e.which == 2
-          return
+          return false
 
         uiNode = $(e.target).closest('li')
 
@@ -213,11 +215,12 @@ module.exports =
           uri = Path.normalize(node.meta.path)
           filePane = atom.workspace.paneForURI(uri)
           filePane.activateItemForURI(uri)
-          e.preventDefault()
 
         else if e.which == 3
           @rightClickNode = uiNode
-          e.preventDefault()
+
+        e.preventDefault()
+        false
 
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:close-from-tree', =>
         # Destroy the item (TextEditor) to trigger the onDidDestroy which also
@@ -271,17 +274,21 @@ module.exports =
     viewForItem: (node) ->
       icon = switch
         when node.isFolder then 'icon-file-directory'
-        when node.isFile then 'icon-file-symlink-file'
+        when node.isFile then 'icon-file-text'
         when node.isServer then 'icon-server'
         else 'icon-file-text'
 
+      sel = if node.selected then "selected" else ""
+      delete node["selected"]
+
       if node.isServer or node.isFolder
         $$ ->
-          @li class: 'list-nested-item folder list-item-selectable', =>
-              @div class: 'header list-item', =>
+          @li class: 'folder', =>
+              @div class: 'list-item-wrap', =>
                   @span class: 'icon '+ icon, 'data-name' : node.name, title : node.name, node.name
-              @ol class: 'list-tree entries'
+              @ol class: 'list-entries'
       else
         $$ ->
-          @li class: 'list-item file list-item-selectable', =>
-            @span class: 'icon '+ icon, 'data-name' : node.name, title : node.name, node.name
+          @li class: 'file '+ sel, =>
+            @div =>
+              @span class: 'icon '+ icon, 'data-name' : node.name, title : node.name, node.name
