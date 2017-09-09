@@ -39,12 +39,18 @@ Select host.
 <kbd>Ctrl+Alt+o</kbd>
 Show downloaded files.
 
+<kbd>Ctrl+Alt+/</kbd>
+Hide remote-edit panel
+
 ### Mac OS X specific
 <kbd>Ctrl+Cmd+b</kbd>
 Select host.
 
 <kbd>Ctrl+Cmd+o</kbd>
 Show downloaded files
+
+<kbd>Ctrl+Cmd+/</kbd>
+Hide remote-edit panel
 
 
 ## Tips and tricks

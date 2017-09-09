@@ -107,6 +107,7 @@
     position: relative;
   }
   .list-item {
+    position: relative;
     >div {
       display: inline-block;
     }
@@ -164,6 +165,7 @@
     .list-entries li {
         padding-left: 8px;
         white-space: nowrap;
+        position: relative;
     }
 
     // All other level folders
@@ -208,7 +210,7 @@
         content: "\f078";
     }
 
-    // TODO: FIXME: The following never worked... weird behaviour
+    // // TODO: FIXME: The following never worked... weird behaviour
     // .list-entries li::before {
     //     content: '';
     //     position: absolute;
@@ -228,7 +230,6 @@
     height: 18px;
     text-align: center;
     background-color: @tab-bar-border-color;
-    // background-color: #47494c;
 
 }
 

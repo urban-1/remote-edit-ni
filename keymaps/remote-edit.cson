@@ -10,10 +10,12 @@
 '.platform-darwin':
   'ctrl-cmd-b': 'remote-edit:browse'
   'ctrl-cmd-o': 'remote-edit:show-open-files'
+  'ctrl-cmd-\\': 'remote-edit:toggle-files-view'
 
 '.platform-win32, .platform-linux':
   'ctrl-alt-b': 'remote-edit:browse'
   'ctrl-alt-o': 'remote-edit:show-open-files'
+  'ctrl-alt-\\': 'remote-edit:toggle-files-view'
 
 '.open-files-view.select-list':
   'shift-d': 'openfilesview:delete'
