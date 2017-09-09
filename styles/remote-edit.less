@@ -251,3 +251,15 @@
     float: right;
     padding-right: 20px;
 }
+
+atom-text-editor::shadow .password-lines .line {
+  span.syntax--text:before {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    color: @text-color !important;
+  }
+  span.text {
+    color:rgba(0, 0, 0, 0);
+  }
+}

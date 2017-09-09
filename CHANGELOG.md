@@ -1,12 +1,16 @@
+
 ## 3.2.0
+
 * Tree view of the opened files
 * Default paths using os.homedir() instead of ~
-* Notification level settings to reduce number of popups
-
+* Notification level settings to reduce number of popups (https://github.com/sveale/remote-edit/issues/119)
+* Hiding password fields (https://github.com/sveale/remote-edit/issues/132)
 
 ## 3.1.1 (02/09/2017)
+
 * Clean up localFiles on tab close
 * Avoid using timestamp on local file name so already opened files are detected
+
 
 ## ...
 

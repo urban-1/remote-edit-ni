@@ -94,7 +94,7 @@ module.exports =
                 async.waterfall([
                   (callback) ->
                     Dialog ?= require '../view/dialog'
-                    passwordDialog = new Dialog({prompt: "Enter password"})
+                    passwordDialog = new Dialog({prompt: "Enter password", type: 'password'})
                     passwordDialog.toggle(callback)
                 ], (err, result) =>
                   connectionOptions = _.extend({password: result}, connectionOptions)
@@ -116,7 +116,7 @@ module.exports =
             async.waterfall([
               (callback) ->
                 Dialog ?= require '../view/dialog'
-                passwordDialog = new Dialog({prompt: "Enter password"})
+                passwordDialog = new Dialog({prompt: "Enter password", type: 'password'})
                 passwordDialog.toggle(callback)
             ], (err, result) =>
               @upload({password: result})

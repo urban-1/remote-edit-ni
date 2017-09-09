@@ -28,8 +28,8 @@
     {'type': 'separator'}
     {'label': 'Create folder', 'command': 'remote-edit:create-folder'}
     {'label': 'Create file', 'command': 'remote-edit:create-file'}
-    {'label': 'Rename', 'command': 'remote-edit:rename-folder-file'}
-    {'label': 'Remove folder/file', 'command': 'remote-edit:remove-folder-file'}
+    {'label': 'Rename/Move', 'command': 'remote-edit:rename-folder-file'}
+    {'label': 'Remove', 'command': 'remote-edit:remove-folder-file'}
     {'type': 'separator'}
     #{'label': 'Copy', 'command': 'remote-edit:copy-folder-file'}
     {'label': 'Cut', 'command': 'remote-edit:cut-folder-file'}

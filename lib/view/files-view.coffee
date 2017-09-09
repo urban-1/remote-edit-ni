@@ -96,7 +96,7 @@ module.exports =
             if @host.password == "" or @host.password == '' or !@host.password?
               async.waterfall([
                 (callback) ->
-                  passwordDialog = new Dialog({prompt: "Enter password"})
+                  passwordDialog = new Dialog({prompt: "Enter password", type: 'password'})
                   passwordDialog.toggle(callback)
               ], (err, result) =>
                 connectionOptions = _.extend({password: result}, connectionOptions)
@@ -129,7 +129,7 @@ module.exports =
           else if @host.usePassword and (err.code == 530 or err.level == "connection-ssh")
             async.waterfall([
               (callback) ->
-                passwordDialog = new Dialog({prompt: "Enter password"})
+                passwordDialog = new Dialog({prompt: "Enter password", type: 'password'})
                 passwordDialog.toggle(callback)
             ], (err, result) =>
               @toggle()

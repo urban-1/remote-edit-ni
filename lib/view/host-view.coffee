@@ -5,6 +5,7 @@ _ = require 'underscore-plus'
 Host = require '../model/host'
 SftpHost = require '../model/sftp-host'
 FtpHost = require '../model/ftp-host'
+Passwd = require './passwd'
 
 fs = require 'fs-plus'
 
@@ -97,6 +98,9 @@ module.exports =
         @privateKeyPassphrase.setText(keytarPassphrase ? "")
       else
         @privateKeyPassphrase.setText(@host.passphrase ? "")
+
+      # hack
+      Passwd.maskPass(@password)
 
     focusNext: =>
       elements = [@hostname, @directory, @username, @port, @alias, @saveButton]
