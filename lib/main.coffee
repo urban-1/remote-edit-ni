@@ -106,13 +106,6 @@ module.exports =
     atom.commands.add('atom-workspace', 'remote-edit:new-host-ftp', => @newHostFtp())
     atom.commands.add('atom-workspace', 'remote-edit:toggle-files-view', => @createFilesView().toggle())
     atom.commands.add('atom-workspace', 'remote-edit:reload-folder', => @createFilesView().reloadFolder())
-    atom.commands.add('atom-workspace', 'remote-edit:create-folder', => @createFilesView().createFolder())
-    atom.commands.add('atom-workspace', 'remote-edit:create-file', => @createFilesView().createFile())
-    atom.commands.add('atom-workspace', 'remote-edit:rename-folder-file', => @createFilesView().renameFolderFile())
-    atom.commands.add('atom-workspace', 'remote-edit:remove-folder-file', => @createFilesView().deleteFolderFile())
-    atom.commands.add('atom-workspace', 'remote-edit:cut-folder-file', => @createFilesView().copycutFolderFile(true))
-    atom.commands.add('atom-workspace', 'remote-edit:paste-folder-file', => @createFilesView().pasteFolderFile())
-    atom.commands.add('atom-workspace', 'remote-edit:set-permissions', => @createFilesView().setPermissions())
 
   deactivate: ->
     @ipdw?.destroy()

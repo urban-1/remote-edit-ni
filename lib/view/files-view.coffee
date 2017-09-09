@@ -37,14 +37,13 @@ module.exports =
             @span 'Folder: '
             @span outlet: 'server_folder', 'unknown'
 
-        @div class: 'remote-edit-file-hidable', outlet: 'listHidable', =>
+        @div class: 'remote-edit-file-list', outlet: 'listHidable', =>
           # @tag 'atom-text-editor', 'mini': true, class: 'native-key-bindings', outlet: 'filter'
           # Gettext does not exist cause there is no model behind this...
           @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
           @div class: 'remote-edit-file-scroller', =>
-            @div class: 'remote-edit-files-list', =>
-              @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
-            @div class: 'remote-edit-message', outlet: 'message'
+            @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
+          @div class: 'remote-edit-message', outlet: 'message'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
     doFilter: (e) ->
@@ -101,7 +100,7 @@ module.exports =
                   passwordDialog.toggle(callback)
               ], (err, result) =>
                 connectionOptions = _.extend({password: result}, connectionOptions)
-                @toggle()
+                @show()
                 callback(null)
               )
             else
@@ -133,7 +132,7 @@ module.exports =
                 passwordDialog = new Dialog({prompt: "Enter password", type: 'password'})
                 passwordDialog.toggle(callback)
             ], (err, result) =>
-              @toggle()
+              @show()
               @connect({password: result})
             )
           else
@@ -422,6 +421,15 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:previous-folder', =>
         if @path.length > 1
           @openDirectory(@path + path.sep + '..')
+
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:set-permissions', => @setPermissions()
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:create-folder', => @createFolder()
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:create-file', => @createFile()
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:set-permissions', => @setPermissions()
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:rename-folder-file', => @renameFolderFile()
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:remove-folder-file', => @deleteFolderFile()
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:cut-folder-file', => @copycutFolderFile(true)
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:paste-folder-file', => @pasteFolderFile()
 
     selectItemByPath: (path) ->
       @deselect()

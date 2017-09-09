@@ -21,7 +21,7 @@
      {'label': 'Close', 'command': 'remote-edit:close-from-tree'}
   ]
 
-  '.remote-edit-files-list': [
+  '.remote-edit-file-list': [
     {'label': 'Toggle files view', 'command': 'remote-edit:toggle-files-view'}
     {'type': 'separator'}
     {'label': 'Reload current folder', 'command': 'remote-edit:reload-folder'}
