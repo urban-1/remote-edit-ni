@@ -64,6 +64,24 @@ module.exports =
     writeFile: (localFile, callback) ->
       throw new Error("Must be implemented in subclass!")
 
+    createFolder: (folderpath, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
+    createFile: (filepath, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
+    deleteFolderFile: (deletepath, isFolder, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
+    renameFolderFile: (path, oldName, newName, isFolder, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
+    moveFolderFile: (oldPath, newPath, isFolder, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
+    setPermissions: (path, permissions, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
     serializeParams: ->
       throw new Error("Must be implemented in subclass!")
 

@@ -224,7 +224,7 @@ module.exports =
       params
 
     # Create the folder and call the callback. The callback will be called
-    # for both erroe cases (1st arg) and success (2nd arg is the path)
+    # for both error cases (1st arg) and success (2nd arg is the path)
     createFolder: (folderpath, callback) ->
       @emitter.emit 'info', {message: "Creating remote directory at sftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'info'}
       async.waterfall([
@@ -312,7 +312,6 @@ module.exports =
           else
             sftp.exists(newPath, callback)
         ], (err, result) =>
-          console.log result
           if (isFolder and result != undefined) or (!isFolder and err==true)
             @emitter.emit('info', {message: "#{if isFolder then 'Folder' else 'File'} already exists", type: 'error'})
             @tmp_sftp.end()
@@ -332,4 +331,20 @@ module.exports =
               @emitter.emit('info', {message: "Successfully renamed remote folder/file sftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'success'})
             callback?(err)
           )
+        )
+
+    setPermissions: (path, permissions, callback) =>
+      async.waterfall([
+        (callback) =>
+          @connection.sftp(callback)
+        (sftp, callback) =>
+          @tmp_sftp = sftp
+          sftp.chmod(path, permissions, callback)
+        ], (err, result) =>
+          if err?
+            @emitter.emit('info', {message: "Cannot set permissions to sftp://#{@username}@#{@hostname}:#{@port}#{path}", type: 'error'})
+            console.error err if err?
+
+          @tmp_sftp.end()
+          callback?(err)
         )

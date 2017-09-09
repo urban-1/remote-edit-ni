@@ -112,6 +112,7 @@ module.exports =
     atom.commands.add('atom-workspace', 'remote-edit:remove-folder-file', => @createFilesView().deleteFolderFile())
     atom.commands.add('atom-workspace', 'remote-edit:cut-folder-file', => @createFilesView().copycutFolderFile(true))
     atom.commands.add('atom-workspace', 'remote-edit:paste-folder-file', => @createFilesView().pasteFolderFile())
+    atom.commands.add('atom-workspace', 'remote-edit:set-permissions', => @createFilesView().setPermissions())
 
   deactivate: ->
     @ipdw?.destroy()

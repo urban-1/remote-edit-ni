@@ -443,67 +443,73 @@ module.exports =
       @openDirectory(@path)
 
     createFolder: () =>
-      if typeof @host.createFolder == 'function'
-        async.waterfall([
-          (callback) ->
-            nameDialog = new Dialog({prompt: "Enter the name for new folder."})
-            nameDialog.toggle(callback)
-          (foldername, callback) =>
-            @host.createFolder(@path + "/" + foldername, callback)
-        ], (err, result) =>
-          @openDirectory(@path)
-        )
-      else
+      if typeof @host.createFolder != 'function'
         throw new Error("Not implemented yet!")
+
+      async.waterfall([
+        (callback) ->
+          nameDialog = new Dialog({prompt: "Enter the name for new folder."})
+          nameDialog.toggle(callback)
+        (foldername, callback) =>
+          @host.createFolder(@path + "/" + foldername, callback)
+      ], (err, result) =>
+        @openDirectory(@path)
+      )
 
     createFile: () =>
-      if typeof @host.createFile == 'function'
-        async.waterfall([
-          (callback) ->
-            nameDialog = new Dialog({prompt: "Enter the name for new file."})
-            nameDialog.toggle(callback)
-          (filename, callback) =>
-            @host.createFile(@path + "/" + filename, callback)
-        ], (err, result) =>
-          @openDirectory(@path)
-        )
-      else
+      if typeof @host.createFile != 'function'
         throw new Error("Not implemented yet!")
+
+      async.waterfall([
+        (callback) ->
+          nameDialog = new Dialog({prompt: "Enter the name for new file."})
+          nameDialog.toggle(callback)
+        (filename, callback) =>
+          @host.createFile(@path + "/" + filename, callback)
+      ], (err, result) =>
+        @openDirectory(@path)
+      )
+
 
     renameFolderFile: () =>
-      if typeof @host.renameFolderFile == 'function'
-        if @selectedItem and @selectedItem.name and @selectedItem.name != '.'
-          async.waterfall([
-            (callback) =>
-              nameDialog = new Dialog({prompt: """Enter the new name for #{if @selectedItem.isDir then 'folder' else if @selectedItem.isFile then 'file' else 'link'} "#{@selectedItem.name}"."""})
-              nameDialog.miniEditor.setText(@selectedItem.name)
-              nameDialog.toggle(callback)
-            (newname, callback) =>
-              @deselect()
-              @host.renameFolderFile(@path, @selectedItem.name, newname, @selectedItem.isDir, callback)
-          ], (err, result) =>
-            @openDirectory(@path)
-          )
-      else
+      if typeof @host.renameFolderFile != 'function'
         throw new Error("Not implemented yet!")
+
+      if !@selectedItem or !@selectedItem.name or @selectedItem.name == '.'
+        return
+
+      async.waterfall([
+        (callback) =>
+          nameDialog = new Dialog({prompt: """Enter the new name for #{if @selectedItem.isDir then 'folder' else if @selectedItem.isFile then 'file' else 'link'} "#{@selectedItem.name}"."""})
+          nameDialog.miniEditor.setText(@selectedItem.name)
+          nameDialog.toggle(callback)
+        (newname, callback) =>
+          @deselect()
+          @host.renameFolderFile(@path, @selectedItem.name, newname, @selectedItem.isDir, callback)
+      ], (err, result) =>
+        @openDirectory(@path)
+      )
 
     deleteFolderFile: () =>
-      if typeof @host.deleteFolderFile == 'function'
-        if @selectedItem and @selectedItem.name and @selectedItem.name != '.'
-          atom.confirm
-            message: "Are you sure you want to delete #{if @selectedItem.isDir then'folder' else if @selectedItem.isFile then 'file' else 'link'}?"
-            detailedMessage: "You are deleting: #{@selectedItem.name}"
-            buttons:
-               'Yes': =>
-                 @host.deleteFolderFile(@path + "/" + @selectedItem.name, @selectedItem.isDir, () =>
-                   @openDirectory(@path)
-                 )
-               'No': =>
-                @deselect()
-
-          @selectedItem = false
-      else
+      if typeof @host.deleteFolderFile != 'function'
         throw new Error("Not implemented yet!")
+
+      if !@selectedItem or !@selectedItem.name or @selectedItem.name == '.'
+        return
+
+      atom.confirm
+        message: "Are you sure you want to delete #{if @selectedItem.isDir then'folder' else if @selectedItem.isFile then 'file' else 'link'}?"
+        detailedMessage: "You are deleting: #{@selectedItem.name}"
+        buttons:
+           'Yes': =>
+             @host.deleteFolderFile(@path + "/" + @selectedItem.name, @selectedItem.isDir, () =>
+               @openDirectory(@path)
+             )
+           'No': =>
+            @deselect()
+
+      @selectedItem = false
+
 
     copycutFolderFile: (cut=false) =>
       if @selectedItem and @selectedItem.name and @selectedItem.name != '.'
@@ -515,6 +521,14 @@ module.exports =
           }
 
     pasteFolderFile: () =>
+
+      if typeof @host.moveFolderFile != 'function'
+        throw new Error("Not implemented yet!")
+
+      # We only support cut... copying a folder we need to do recursive stuff...
+      if !@cutPasteBuffer.cut
+        throw new Error("Copy is Not implemented yet!")
+
       if !@cutPasteBuffer or !@cutPasteBuffer.oldPath or @cutPasteBuffer.oldPath == '.'
         @setError("Nothing to paste")
         return
@@ -522,25 +536,42 @@ module.exports =
       # Construct the new path using the old name
       @cutPasteBuffer.newPath = @path + '/' + @cutPasteBuffer.name
 
-      # We only support cut... copying a folder we need to do recursive stuff...
-      if !@cutPasteBuffer.cut
-        throw new Error("Copy is Not implemented yet!")
+      if !@selectedItem or !@selectedItem.name or @selectedItem.name == '.'
+        return
 
-      if typeof @host.moveFolderFile == 'function'
-        if @selectedItem and @selectedItem.name and @selectedItem.name != '.'
-          async.waterfall([
-            (newname, callback) =>
-              @deselect()
-              @host.moveFolderFile(@cutPasteBuffer.oldPath, @cutPasteBuffer.newPath, @cutPasteBuffer.isDir,  () =>
-                @openDirectory(@path)
-                # reset buffer
-                @cutPasteBuffer = {}
-              )
-          ], (err, result) =>
+      async.waterfall([
+        (newname, callback) =>
+          @deselect()
+          @host.moveFolderFile(@cutPasteBuffer.oldPath, @cutPasteBuffer.newPath, @cutPasteBuffer.isDir,  () =>
             @openDirectory(@path)
+            # reset buffer
+            @cutPasteBuffer = {}
           )
-      else
+      ], (err, result) =>
+        @openDirectory(@path)
+      )
+
+
+    setPermissions: () =>
+      if typeof @host.setPermissions != 'function'
         throw new Error("Not implemented yet!")
+
+      if !@selectedItem or !@selectedItem.name or @selectedItem.name == '..'
+        return
+
+      async.waterfall([
+        (callback) =>
+          fp = @path + "/" + @selectedItem.name
+          Dialog ?= require '../view/dialog'
+          permDialog = new Dialog({prompt: "Enter permissions (ex. 0664) for #{fp}"})
+          permDialog.toggle(callback)
+        (permissions, callback) =>
+          @host.setPermissions(@path + "/" + @selectedItem.name, permissions, callback)
+        ], (err) =>
+          @deselect()
+          if !err?
+            @openDirectory(@path)
+        )
 
     deselect: () ->
         @list.find('li.selected').removeClass('selected');
