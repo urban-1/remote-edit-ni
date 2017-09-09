@@ -1,6 +1,7 @@
 ## 3.2.0
 * Tree view of the opened files
 * Default paths using os.homedir() instead of ~
+* Notification level settings to reduce number of popups
 
 
 ## 3.1.1 (02/09/2017)

@@ -33,6 +33,11 @@ module.exports =
       title: 'Display notifications'
       type: 'boolean'
       default: true
+    notificationLevel:
+      title: 'Notification Level'
+      type: 'string'
+      default: 'error'
+      enum: ['fatal', 'error', 'warning', 'info', 'debug']
     sshPrivateKeyPath:
       title: 'Path to private SSH key'
       type: 'string'
