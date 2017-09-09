@@ -1,6 +1,6 @@
  - [x] fix notifications panel
  - [x] fix dialog.coffee
- - [ ] create hidden input dialog and use it in dialog.coffee and elsewhere
+ - [x] create hidden input dialog and use it in dialog.coffee and elsewhere
  - [x] switch to https://github.com/atom/notifications instead of atom-message-panel
  - [x] check and fix serializing
  - [x] clear input when a directory is selected
@@ -11,6 +11,7 @@
  - [x] Store when files are downloaded
  - [ ] Handle SFTP "expected" errors like PERMISSION_DENIED when navigating
  - [ ] Add a "Remote File Modified" warning based on timestamp
- - [ ] Split the file view into two: top Kate-like folder tree and bottom remote file browser
- - [ ] Add a "Show in remote browser" context option on the folders in the above top view
+ - [x] Split the file view into two: top Kate-like folder tree and bottom remote file browser
+ - [x] Add a "Show in remote browser" context option on the folders in the above top view
+ - [ ] Update ftp-host to have the same functionality as sftp-host
  - [ ] Clean this TODO

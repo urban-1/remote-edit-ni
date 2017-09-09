@@ -258,3 +258,13 @@ module.exports =
             @emitter.emit('info', {message: "Successfully deleted remote file ftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'success'})
           callback?(err)
         )
+
+    setPermissions: (path, permissions, callback) =>
+      cmd = "CHMOD #{permissions} #{path}"
+      @connection.site(cmd, (err) =>
+        if err?
+          @emitter.emit('info', {message: "Cannot set permissions to ftp://#{@username}@#{@hostname}:#{@port}#{path}", type: 'error'})
+          console.error err if err?
+
+        callback?(err)
+      )

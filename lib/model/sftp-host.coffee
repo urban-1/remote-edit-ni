@@ -292,16 +292,14 @@ module.exports =
           callback?(err)
         )
 
-    # Rename jsut constructs paths and calls moveFolderFile which is more generic
     renameFolderFile: (path, oldName, newName, isFolder, callback) =>
       if oldName == newName
         @emitter.emit('info', {message: "The new name is same as the old", type: 'error'})
         return
+
       oldPath = path + "/" + oldName
       newPath = path + "/" + newName
-      @moveFolderFile(oldPath, newPath, isFolder, callback)
 
-    moveFolderFile: (oldPath, newPath, isFolder, callback) ->
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)

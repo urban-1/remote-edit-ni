@@ -5,6 +5,7 @@
 * Default paths using os.homedir() instead of ~
 * Notification level settings to reduce number of popups (https://github.com/sveale/remote-edit/issues/119)
 * Hiding password fields (https://github.com/sveale/remote-edit/issues/132)
+* Allow settings permissions to remote file/folder (https://github.com/sveale/remote-edit/issues/214)
 
 ## 3.1.1 (02/09/2017)
 

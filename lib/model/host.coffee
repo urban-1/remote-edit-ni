@@ -76,9 +76,6 @@ module.exports =
     renameFolderFile: (path, oldName, newName, isFolder, callback) ->
       throw new Error("Must be implemented in subclass!")
 
-    moveFolderFile: (oldPath, newPath, isFolder, callback) ->
-      throw new Error("Must be implemented in subclass!")
-
     setPermissions: (path, permissions, callback) ->
       throw new Error("Must be implemented in subclass!")
 

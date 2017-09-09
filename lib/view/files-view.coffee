@@ -37,13 +37,14 @@ module.exports =
             @span 'Folder: '
             @span outlet: 'server_folder', 'unknown'
 
-        @div class: 'remote-edit-file-scroller', outlet: 'listScroller', =>
+        @div class: 'remote-edit-file-hidable', outlet: 'listHidable', =>
           # @tag 'atom-text-editor', 'mini': true, class: 'native-key-bindings', outlet: 'filter'
           # Gettext does not exist cause there is no model behind this...
           @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
-          @div class: 'remote-edit-files-list', =>
-            @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
-          @div class: 'remote-edit-message', outlet: 'message'
+          @div class: 'remote-edit-file-scroller', =>
+            @div class: 'remote-edit-files-list', =>
+              @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
+            @div class: 'remote-edit-message', outlet: 'message'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
     doFilter: (e) ->
@@ -390,14 +391,14 @@ module.exports =
         if e.which != 1
           e.preventDefault()
           false
-        @listScroller.addClass("hidden")
+        @listHidable.addClass("hidden")
         @treeView.removeClass("hidden")
 
       @on 'mousedown', '.remote-edit-panel-toggle .before', (e) =>
         if e.which != 1
           e.preventDefault()
           false
-        @listScroller.removeClass("hidden")
+        @listHidable.removeClass("hidden")
         @treeView.addClass("hidden")
 
       @on 'mousedown', '.remote-edit-panel-toggle .middle', (e) =>
@@ -405,7 +406,7 @@ module.exports =
           e.preventDefault()
           false
 
-        @listScroller.removeClass("hidden")
+        @listHidable.removeClass("hidden")
         @treeView.removeClass("hidden")
 
       @filter.on "keyup", (e) =>

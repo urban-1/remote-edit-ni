@@ -53,7 +53,7 @@
 }
 
 .remote-edit-resizer {
-  position: relative;
+  //position: relative;
   height: 100%;
   overflow: hidden;
   cursor: default;
@@ -64,7 +64,7 @@
   display: flex;
   flex-direction: column;
   .remote-edit-resize-handle {
-    position: absolute;
+    // position: absolute;
     top: 0;
     bottom: 0;
     width: 10px;
@@ -85,6 +85,7 @@
   }
 }
 
+.remote-edit-file-hidable,
 .remote-edit-file-scroller {
   display: flex;
   flex-direction: column;
@@ -98,7 +99,7 @@
   flex-shrink: 0;
   isolation: isolate;
   min-width: -webkit-min-content;
-  min-height: 90%;
+  //min-height: 90%;
   padding-left: @component-icon-padding;
   padding-right: @component-padding;
 
@@ -121,11 +122,11 @@
       pointer-events: none;
     }
 
-    // This fixes #110, see that issue for more details
-    &:before {
-      content: '';
-      position: absolute;
-    }
+    // // This fixes #110, see that issue for more details
+    // &:before {
+    //   content: '';
+    //   position: absolute;
+    // }
   }
 }
 
