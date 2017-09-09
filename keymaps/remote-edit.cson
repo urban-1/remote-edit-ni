@@ -21,6 +21,9 @@
   'shift-d': 'openfilesview:delete'
 
 '.hosts-view.select-list':
+  'shift-a': 'remote-edit:new-sftp-host'
+  'shift-s': 'remote-edit:new-sftp-host'
+  'shift-f': 'remote-edit:new-ftp-host'
   'shift-d': 'hostview:delete'
   'shift-e': 'hostview:edit'
 

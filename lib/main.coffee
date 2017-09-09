@@ -102,25 +102,23 @@ module.exports =
 
     atom.commands.add('atom-workspace', 'remote-edit:show-open-files', => @showOpenFiles())
     atom.commands.add('atom-workspace', 'remote-edit:browse', => @browse())
-    atom.commands.add('atom-workspace', 'remote-edit:new-host-sftp', => @newHostSftp())
-    atom.commands.add('atom-workspace', 'remote-edit:new-host-ftp', => @newHostFtp())
+    atom.commands.add('atom-workspace', 'remote-edit:new-sftp-host', => @newHost("sftp"))
+    atom.commands.add('atom-workspace', 'remote-edit:new-ftp-host', => @newHost("ftp"))
     atom.commands.add('atom-workspace', 'remote-edit:toggle-files-view', => @createFilesView().toggle())
-    atom.commands.add('atom-workspace', 'remote-edit:reload-folder', => @createFilesView().reloadFolder())
+    atom.commands.add('atom-workspace', 'remote-edit:reload-current-folder', => @createFilesView().reloadFolder())
 
   deactivate: ->
     @ipdw?.destroy()
 
-  newHostSftp: ->
+  newHost: (type="sftp") ->
     HostView ?= require './view/host-view'
-    SftpHost ?= require './model/sftp-host'
-    host = new SftpHost()
-    view = new HostView(host, @getOrCreateIpdw())
-    view.toggle()
+    if type == "sftp"
+      SftpHost ?= require './model/sftp-host'
+      host = new SftpHost()
+    else if type == "ftp"
+      FtpHost ?= require './model/ftp-host'
+      host = new FtpHost()
 
-  newHostFtp: ->
-    HostView ?= require './view/host-view'
-    FtpHost ?= require './model/ftp-host'
-    host = new FtpHost()
     view = new HostView(host, @getOrCreateIpdw())
     view.toggle()
 
