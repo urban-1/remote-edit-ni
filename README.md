@@ -1,7 +1,5 @@
-# remote-edit for atom.io
-
-[![Build Status](https://travis-ci.org/sveale/remote-edit.svg?branch=master)](https://travis-ci.org/sveale/remote-edit)
-[![Build status](https://ci.appveyor.com/api/projects/status/i1swrbog9vdk29uk)](https://ci.appveyor.com/project/SverreAleksandersen/remote-edit)
+# remote-edit2 for atom.io
+`master`: [![Build Status](https://travis-ci.org/urban-1/remote-edit2.svg?branch=master)](https://travis-ci.org/urban-1/remote-edit2) - `devel`: [![Build Status](https://travis-ci.org/urban-1/remote-edit2.svg?branch=devel)](https://travis-ci.org/urban-1/remote-edit2)
 
 
 Atom package to browse and edit remote files using FTP and SFTP.
