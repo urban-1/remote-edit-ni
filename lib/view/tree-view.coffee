@@ -224,6 +224,8 @@ module.exports =
         false
 
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:close-from-tree', =>
+        if not @rightClickNode
+          return
         # Destroy the item (TextEditor) to trigger the onDidDestroy which also
         # cleans up the remoteEdit.json...
         node = @rightClickNode.data('node')
@@ -233,6 +235,9 @@ module.exports =
           @closeFolderFromNode(node)
 
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:show-in-browser', =>
+        if not @rightClickNode
+          return
+          
         node = @rightClickNode.data('node')
 
         folder = null
