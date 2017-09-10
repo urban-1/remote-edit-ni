@@ -306,7 +306,6 @@ module.exports =
       )
 
     openDirectory: (dir, callback) =>
-      console.log "#{dir} ... openDirectory"
       dir = upath.normalize(dir)
       async.waterfall([
         (callback) =>
