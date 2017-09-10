@@ -1,16 +1,16 @@
-Host = require './host'
+# OCDz...
+Serializable = require 'serializable'
+filesize = require 'file-size'
+moment = require 'moment'
+async = require 'async'
+Path = require 'path'
+ftp = require 'ftp'
+fs = require 'fs-plus'
+_ = require 'underscore-plus'
 
 RemoteFile = require './remote-file'
 LocalFile = require './local-file'
-
-async = require 'async'
-filesize = require 'file-size'
-moment = require 'moment'
-ftp = require 'ftp'
-Serializable = require 'serializable'
-Path = require 'path'
-_ = require 'underscore-plus'
-fs = require 'fs-plus'
+Host = require './host'
 
 try
   keytar = require 'keytar'

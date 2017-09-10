@@ -5,7 +5,7 @@ hash = require 'string-hash'
 _ = require 'underscore-plus'
 osenv = require 'osenv'
 fs = require 'fs-plus'
-ReadWriteLock = require('rwlock');
+ReadWriteLock = require 'rwlock';
 
 
 module.exports =
@@ -88,23 +88,20 @@ module.exports =
     hashCode: ->
       hash(@hostname + @directory + @username + @port)
 
-    addLocalFile: (localFile) ->
-      that = @
-      @configLock.writeLock((release) ->
-        that.localFiles.push(localFile)
-        that.emitter.emit 'did-change', localFile
+    addLocalFile: (localFile) =>
+
+      @configLock.writeLock((release) =>
+        @localFiles.push(localFile)
+        @emitter.emit 'did-change', localFile
         release()
       )
 
-
-    removeLocalFile: (localFile) ->
-      that = @
-      @configLock.writeLock((release) ->
-        that.localFiles = _.reject(@localFiles, ((val) -> val == localFile))
-        that.emitter.emit 'did-change', localFile
+    removeLocalFile: (localFile) =>
+      @configLock.writeLock((release) =>
+        @localFiles = _.reject(@localFiles, ((val) -> val == localFile))
+        @emitter.emit 'did-change', localFile
         release()
       )
-
 
     delete: ->
       for file in @localFiles

@@ -14,7 +14,6 @@ SftpHost = null
 FtpHost = null
 LocalFile = null
 url = null
-Q = null
 InterProcessDataWatcher = null
 fs = null
 
@@ -164,7 +163,6 @@ module.exports =
       return unless protocol is 'remote-edit:'
 
       if host is 'localfile'
-        Q ?= require 'q'
         Host ?= require './model/host'
         FtpHost ?= require './model/ftp-host'
         SftpHost ?= require './model/sftp-host'
