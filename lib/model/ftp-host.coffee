@@ -213,31 +213,37 @@ module.exports =
     renameFolderFile: (path, oldName, newName, isFolder, callback) ->
       if oldName == newName
         @emitter.emit('info', {message: "The new name is same as the old", type: 'error'})
-      else
-        oldPath = path + "/" + oldName
-        newPath = path + "/" + newName
-        async.waterfall([
-          (callback) =>
-            if(isFolder)
-              @connection.list(newPath, callback)
-            else
-              @connection.get(newPath, callback)
-        ], (err, result) =>
-          if (isFolder and result.length > 0) or (!isFolder and result)
-            @emitter.emit('info', {message: "#{if isFolder then 'Folder' else 'File'} already exists", type: 'error'})
+        return
+
+      oldPath = path + "/" + oldName
+      newPath = path + "/" + newName
+
+      @moveFolderFile()
+
+
+    moveFolderFile: (oldPath, newPath, isFolder, callback) =>
+      async.waterfall([
+        (callback) =>
+          if(isFolder)
+            @connection.list(newPath, callback)
           else
-            async.waterfall([
-              (callback) =>
-                @connection.rename(oldPath, newPath, callback)
-            ], (err) =>
-              if err?
-                @emitter.emit('info', {message: "Error occurred when renaming remote folder/file ftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'error'})
-                console.error err if err?
-              else
-                @emitter.emit('info', {message: "Successfully renamed remote folder/file ftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'success'})
-              callback?(err)
-            )
-        )
+            @connection.get(newPath, callback)
+      ], (err, result) =>
+        if (isFolder and result.length > 0) or (!isFolder and result)
+          @emitter.emit('info', {message: "#{if isFolder then 'Folder' else 'File'} already exists", type: 'error'})
+        else
+          async.waterfall([
+            (callback) =>
+              @connection.rename(oldPath, newPath, callback)
+          ], (err) =>
+            if err?
+              @emitter.emit('info', {message: "Error occurred when renaming remote folder/file ftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'error'})
+              console.error err if err?
+            else
+              @emitter.emit('info', {message: "Successfully renamed remote folder/file ftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'success'})
+            callback?(err)
+          )
+      )
 
     deleteFolderFile: (deletepath, isFolder, callback) ->
       if isFolder
