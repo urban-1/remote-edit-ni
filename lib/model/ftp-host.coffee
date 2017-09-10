@@ -218,7 +218,7 @@ module.exports =
       oldPath = path + "/" + oldName
       newPath = path + "/" + newName
 
-      @moveFolderFile()
+      @moveFolderFile(oldPath, newPath, isFolder, callback)
 
 
     moveFolderFile: (oldPath, newPath, isFolder, callback) =>
