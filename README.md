@@ -53,7 +53,7 @@ While in this view, you can do the following:
 ### Adding new hosts
 FTP                        |  SFTP
 :-------------------------:|:-------------------------:
-![Adding a new FTP host](http://i.imgur.com/hpIMGUA.png) | ![Adding a new SFTP host](http://i.imgur.com/UtwSXd2.png =250x)
+![Adding a new FTP host](http://i.imgur.com/hpIMGUA.png) | ![Adding a new SFTP host](http://i.imgur.com/UtwSXd2.png)
 
 
 ### Editing existing host
