@@ -300,6 +300,10 @@ module.exports =
       oldPath = path + "/" + oldName
       newPath = path + "/" + newName
 
+      @moveFolderFile(oldPath, newPath, isFolder, callback)
+
+    moveFolderFile: (oldPath, newPath, isFolder, callback) =>
+
       async.waterfall([
         (callback) =>
           @connection.sftp(callback)
