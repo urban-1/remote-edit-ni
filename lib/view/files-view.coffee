@@ -425,6 +425,7 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:set-permissions', => @setPermissions()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:create-folder', => @createFolder()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:create-file', => @createFile()
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:reload-folder', => @reloadFolder()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:rename-folder-file', => @renameFolderFile()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:remove-folder-file', => @deleteFolderFile()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:cut-folder-file', => @copycutFolderFile(true)
