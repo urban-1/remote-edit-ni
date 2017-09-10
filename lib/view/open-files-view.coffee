@@ -2,7 +2,6 @@
 {CompositeDisposable} = require 'atom'
 
 async = require 'async'
-Q = require 'q'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
 moment = require 'moment'

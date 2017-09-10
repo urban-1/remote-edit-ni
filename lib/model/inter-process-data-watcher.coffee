@@ -1,5 +1,4 @@
 {CompositeDisposable, Emitter} = require 'atom'
-Q = require 'q'
 fs = require 'fs-plus'
 
 # Defer requiring
@@ -11,7 +10,7 @@ module.exports =
       @justCommittedData = false
       @emitter = new Emitter
       @disposables = new CompositeDisposable
-      @promisedData = Q.defer().promise
+      @promisedData = new Promise((resolve, reject)=>)
       @fsTimeout = undefined
 
       fs.open(@filePath, 'a', "0644", =>
@@ -29,27 +28,28 @@ module.exports =
 
 
     reloadIfNecessary: ->
-      if @justCommittedData isnt true
-        @data?.destroy()
-        @data = undefined
-        @promisedData = @load()
-      else if @justCommittedData is true
+      # if we just committed... flip and return
+      if @justCommittedData is true
         @justCommittedData = false
+        return
+
+      # ... here justCommittedData is false
+      @data?.destroy()
+      @data = undefined
+      @promisedData = @load()
 
 
     # Should return InterProcessData object
     getData: ->
-      deferred = Q.defer()
-
-      if @data is undefined
-        @promisedData.then (resolvedData) =>
-          @data = resolvedData
-          @disposables.add @data.onDidChange => @commit()
-          deferred.resolve(@data)
-      else
-        deferred.resolve(@data)
-
-      deferred.promise
+      return new Promise((resolve, reject) =>
+        if @data is undefined
+          @promisedData.then (resolvedData) =>
+            @data = resolvedData
+            @disposables.add @data.onDidChange => @commit()
+            resolve(@data)
+        else
+          resolve(@data)
+      )
 
 
     destroy: ->
@@ -59,29 +59,29 @@ module.exports =
 
 
     load: ->
-      deferred = Q.defer()
+      # return a native promise
+      return new Promise((resolve, reject) =>
+        fs.readFile(@filePath, 'utf8', (err, data) =>
+          InterProcessData ?= require './inter-process-data'
+          throw err if err?
 
-      fs.readFile(@filePath, 'utf8', ((err, data) =>
-        InterProcessData ?= require './inter-process-data'
-        throw err if err?
-        interProcessData = undefined
-        if data.length > 0
-          try
-            interProcessData = InterProcessData.deserialize(JSON.parse(data))
-          catch e
-            console.debug 'Could not parse serialized remote-edit data! Creating an empty InterProcessData object!'
-            console.debug e
-            interProcessData = new InterProcessData([])
-          finally
-            @emitter.emit 'did-change'
-            deferred.resolve(interProcessData)
-        else
-          deferred.resolve(new InterProcessData([]))
+          # default value
+          interProcessData = new InterProcessData([])
+
+          # Try to read... if we fail, just use the default value
+          if data.length > 0
+            try
+              interProcessData = InterProcessData.deserialize(JSON.parse(data))
+            catch e
+              console.debug 'Could not parse serialized remote-edit data! Creating an empty InterProcessData object!'
+              console.debug e
+
           @emitter.emit 'did-change'
+
+          # we have already handled error above
+          return resolve(interProcessData);
         )
       )
-
-      deferred.promise
 
 
     commit: ->

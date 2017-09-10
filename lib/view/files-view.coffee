@@ -13,7 +13,6 @@ os = require 'os'
 async = require 'async'
 util = require 'util'
 path = require 'path'
-Q = require 'q'
 _ = require 'underscore-plus'
 mkdirp = require 'mkdirp'
 moment = require 'moment'
@@ -307,6 +306,7 @@ module.exports =
       )
 
     openDirectory: (dir, callback) =>
+      console.log "#{dir} ... openDirectory"
       dir = upath.normalize(dir)
       async.waterfall([
         (callback) =>
