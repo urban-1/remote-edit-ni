@@ -237,7 +237,7 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:show-in-browser', =>
         if not @rightClickNode
           return
-          
+
         node = @rightClickNode.data('node')
 
         folder = null

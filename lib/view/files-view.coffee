@@ -87,7 +87,7 @@ module.exports =
           @treeView.addClass('hidden')
 
     connect: (connectionOptions = {}, connect_path = false) ->
-      console.debug "re-connecting (FilesView::connect) to #{connect_path}"
+      console.debug "connect(): re-connecting (FilesView::connect) to path=#{connect_path}"
       dir = upath.normalize(if connect_path then connect_path else if atom.config.get('remote-edit2.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory)
       async.waterfall([
         (callback) =>
@@ -108,6 +108,7 @@ module.exports =
             callback(null)
         (callback) =>
           if !@host.isConnected()
+            @host.close()
             @setMessage("Connecting...")
             @host.connect(callback, connectionOptions)
           else
@@ -219,8 +220,10 @@ module.exports =
 
     setHost: (host) ->
       @host = host
-      @connect()
+      if !@host.isConnected()
+        @connect()
       @show()
+
 
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
