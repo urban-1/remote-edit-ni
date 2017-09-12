@@ -177,6 +177,12 @@ module.exports =
     populate: (dir, callback) ->
       async.waterfall([
         (callback) =>
+          if !@host.isConnected()
+            @setMessage("Connecting...")
+            @host.connect(callback)
+          else
+            callback(null)
+        (callback) =>
           @host.getFilesMetadata(dir, callback)
         (items, callback) =>
           items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit2.foldersOnTop'
