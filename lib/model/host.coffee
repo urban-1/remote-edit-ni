@@ -5,7 +5,6 @@ hash = require 'string-hash'
 _ = require 'underscore-plus'
 osenv = require 'osenv'
 fs = require 'fs-plus'
-ReadWriteLock = require 'rwlock';
 
 
 module.exports =
@@ -16,7 +15,6 @@ module.exports =
     constructor: (@alias = null, @hostname, @directory = "/", @username = osenv.user(), @port, @localFiles = [], @usePassword, @lastOpenDirectory) ->
       @emitter = new Emitter
       @searchKey = @hostname
-      @configLock = new ReadWriteLock
       atom.config.observe 'remote-edit2.filterHostsUsing', (settings) =>
         @searchKey = @getSearchKey(settings) ? @searchKey
 
@@ -89,19 +87,12 @@ module.exports =
       hash(@hostname + @directory + @username + @port)
 
     addLocalFile: (localFile) =>
-
-      @configLock.writeLock((release) =>
-        @localFiles.push(localFile)
-        @emitter.emit 'did-change', localFile
-        release()
-      )
+      @localFiles.push(localFile)
+      @emitter.emit 'did-change', localFile
 
     removeLocalFile: (localFile) =>
-      @configLock.writeLock((release) =>
-        @localFiles = _.reject(@localFiles, ((val) -> val == localFile))
-        @emitter.emit 'did-change', localFile
-        release()
-      )
+      @localFiles = _.reject(@localFiles, ((val) -> val == localFile))
+      @emitter.emit 'did-change', localFile
 
     delete: ->
       for file in @localFiles

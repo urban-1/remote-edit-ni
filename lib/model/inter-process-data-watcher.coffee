@@ -1,5 +1,6 @@
 {CompositeDisposable, Emitter} = require 'atom'
 fs = require 'fs-plus'
+ReadWriteLock = require 'rwlock';
 
 # Defer requiring
 InterProcessData = null
@@ -12,6 +13,7 @@ module.exports =
       @disposables = new CompositeDisposable
       @promisedData = new Promise((resolve, reject)=>)
       @fsTimeout = undefined
+      @configLock = new ReadWriteLock
 
       fs.open(@filePath, 'a', "0644", =>
         @promisedData = @load()
@@ -86,9 +88,12 @@ module.exports =
 
     commit: ->
       @justCommittedData = true
-      fs.writeFile(@filePath, JSON.stringify(@data.serialize()), (err) -> throw err if err?)
-      @emitter.emit 'did-change'
 
+      @configLock.writeLock((release) =>
+        fs.writeFile(@filePath, JSON.stringify(@data.serialize()), (err) -> throw err if err?)
+        @emitter.emit 'did-change'
+        release()
+      )
 
     onDidChange: (callback) ->
       @emitter.on 'did-change', callback
