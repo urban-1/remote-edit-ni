@@ -35,6 +35,29 @@ module.exports =
       pathParts.unshift(localFile.host.hostname)
       return pathParts
 
+
+    getNodeForLocalFile: (localFile) =>
+      node = @tree.root
+
+      # Split to path
+      pathParts = @splitPathParts(localFile)
+
+      # Build path as we go
+      pathStr = ""
+
+      for p in pathParts
+        pathStr += Path.sep + p
+
+        # If there move to next node and continue
+        if pathStr of node.children
+          node = node.children[pathStr]
+        else
+          node = null
+          break
+
+      return node
+
+
     addFile: (localFile) =>
       # Add hostname if not in already
       node = @tree.root
@@ -71,6 +94,7 @@ module.exports =
       node.selected = true
 
       @refreshUITree()
+      @weCausedTabChange = true
 
     closeFileFromNode: (node) =>
       uri = Path.normalize(node.meta.path)
@@ -168,11 +192,23 @@ module.exports =
         @treeUI.find('li.selected').removeClass('selected');
 
     listenForEvents: ->
-      @treeUI.on 'mousedown', (e) =>
-        # console.debug e
-        # e.preventDefault()
-        # false
+      # Observe tab changes...
+      atom.workspace.observeActivePaneItem (item) =>
+          if !item?.localFile
+            return
 
+          # Do not go in a loop! if we just opened a file...
+          if @weCausedTabChange
+            @weCausedTabChange = false
+            return
+
+          if !item.localFile.host
+            item.localFile.host = item.host
+
+          node = @getNodeForLocalFile(item.localFile)
+          @deselect()
+          node.selected = true
+          @refreshUITree()
 
       # Folder/Server Click
       @on 'mousedown', 'li.folder', (e) =>
