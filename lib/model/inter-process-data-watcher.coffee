@@ -63,25 +63,28 @@ module.exports =
     load: ->
       # return a native promise
       return new Promise((resolve, reject) =>
-        fs.readFile(@filePath, 'utf8', (err, data) =>
-          InterProcessData ?= require './inter-process-data'
-          throw err if err?
+        @configLock.readLock((release) =>
+          fs.readFile(@filePath, 'utf8', (err, data) =>
+            release()
+            InterProcessData ?= require './inter-process-data'
+            throw err if err?
 
-          # default value
-          interProcessData = new InterProcessData([])
+            # default value
+            interProcessData = new InterProcessData([])
 
-          # Try to read... if we fail, just use the default value
-          if data.length > 0
-            try
-              interProcessData = InterProcessData.deserialize(JSON.parse(data))
-            catch e
-              console.debug 'Could not parse serialized remote-edit data! Creating an empty InterProcessData object!'
-              console.debug e
+            # Try to read... if we fail, just use the default value
+            if data.length > 0
+              try
+                interProcessData = InterProcessData.deserialize(JSON.parse(data))
+              catch e
+                console.debug 'Could not parse serialized remote-edit data! Creating an empty InterProcessData object!'
+                console.debug e
 
-          @emitter.emit 'did-change'
+            @emitter.emit 'did-change'
 
-          # we have already handled error above
-          return resolve(interProcessData);
+            # we have already handled error above
+            return resolve(interProcessData);
+          )
         )
       )
 
