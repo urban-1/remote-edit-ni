@@ -148,7 +148,7 @@ module.exports =
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
         (callback) ->
-          fs.realpath(os.tmpDir(), callback)
+          fs.realpath(os.tmpdir(), callback)
         (tmpDir, callback) ->
           tmpDir = tmpDir + path.sep + "remote-edit"
           fs.mkdir(tmpDir, ((err) ->

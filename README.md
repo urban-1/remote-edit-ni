@@ -1,9 +1,12 @@
-# remote-edit for atom.io (remote-edit-ni) [newinnovations fork]
+# remote-edit-ni for atom.io [newinnovations fork of remote-edit]
 
-Atom package to browse and edit remote files using FTP and SFTP.
+Atom package to browse and edit remote files using SSH and FTP.
 
-* This fork adds a minor feature that opens the host browse dialog in the remote directory of the current editor tab.
-* New keybindings under <kbd>Alt+r</kbd>
+This fork differs from the original package sveale/remote-edit:
+
+* Several changes in atom have broken sveale/remote-edit. This fork currently supports the changes in atom up to version 1.23.x.
+* The original reason behind this fork is to have the possibility to open additional files from the same remote directory as the current editor tab. Using <kbd>Alt+r m</kbd>. ("m" for more)
+* Keybindings in remote-edit-ni are under <kbd>Alt+r</kbd>. ("r" for remote)
 
 
 ## Keyboard shortcuts
@@ -12,7 +15,7 @@ Atom package to browse and edit remote files using FTP and SFTP.
 Select remote host and start browsing in / or last directory (when selected in preferences).
 
 <kbd>Alt+r m</kbd>
-Browse remote host and directory of the current editor tab.
+Browse remote host in directory of the current editor tab.
 
 <kbd>Alt+r o</kbd>
 Show open remote files.
