@@ -220,8 +220,8 @@ module.exports =
 
     setHost: (host) ->
       @host = host
-      if !@host.isConnected()
-        @connect()
+      #if !@host.isConnected()
+      @connect()
       @show()
 
 
