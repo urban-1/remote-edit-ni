@@ -2,7 +2,7 @@
   "name": "remote-edit-ni",
   "main": "./lib/main.coffee",
   "version": "2.2.0",
-  "description": "Browse and edit remote files using SFTP and FTP [newinnovations fork]",
+  "description": "Edit remote files using SSH/FTP. This fork of remote-edit supports atom 1.23.x and adds some new features.",
   "homepage": "https://github.com/newinnovations/remote-edit-ni",
   "repository": {
     "type": "git",
