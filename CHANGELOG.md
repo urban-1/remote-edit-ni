@@ -1,3 +1,9 @@
+## 3.3.0
+
+* Support for Atom 1.23.x - FULL CREDIT TO remote-edit-NI (newinnovations)
+* RemoteEditEditor.upload now returns a promise
+* [fix] Dealing with timeout and connection state detection
+* [fix] For the original #226 (treating TextEditor.save as a Promise)
 
 ## 3.2.0
 

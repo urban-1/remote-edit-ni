@@ -14,4 +14,5 @@
  - [x] Split the file view into two: top Kate-like folder tree and bottom remote file browser
  - [x] Add a "Show in remote browser" context option on the folders in the above top view
  - [ ] Update ftp-host to have the same functionality as sftp-host
+ - [ ] Port all async code to Promises... 
  - [ ] Clean this TODO

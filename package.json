@@ -1,7 +1,7 @@
 {
   "name": "remote-edit2",
   "main": "./lib/main.coffee",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Browse and edit remote files using SFTP and FTP",
   "homepage": "https://github.com/duxet/remote-edit2",
   "repository": {
