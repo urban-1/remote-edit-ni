@@ -2,7 +2,6 @@
 {CompositeDisposable, Emitter} = require 'atom'
 _ = require 'underscore-plus'
 
-FilesView = require './files-view'
 HostView = require './host-view'
 
 SftpHost = require '../model/sftp-host'
@@ -79,9 +78,11 @@ module.exports =
 
     confirmed: (item) ->
       @cancel()
-      filesView = new FilesView(item)
-      filesView.connect()
-      filesView.toggle()
+      filesView = module.parent.exports.createFilesView()
+      filesView.setHost(item)
+      # filesView.host = item
+      # filesView.connect()
+      # filesView.show()
 
     listenForEvents: ->
       @disposables.add atom.commands.add 'atom-workspace', 'hostview:delete', =>

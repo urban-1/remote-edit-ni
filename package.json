@@ -40,7 +40,8 @@
     "atom-space-pen-views": "^2.0.3",
     "mkdirp": "~0.5.1",
     "upath": "~0.1.6",
-    "temp": ">=0.8.3"
+    "temp": ">=0.8.3",
+    "rwlock": ">=5.0.0"
   },
   "optionalDependencies": {
     "keytar": "~3.0.0"
