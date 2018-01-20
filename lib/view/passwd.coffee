@@ -7,7 +7,7 @@
 module.exports =
   # Gets a view/subview element and maskes the TextEditor with ***
   maskPass: (passwordView) ->
-      passwordElement = $(passwordView.element.rootElement)
+      passwordElement = $(passwordView.element)
       passwordElement.find('div.lines').addClass('password-lines')
       passwordView.getModel().onDidChange =>
         string = passwordView.getModel().getText().split('').map(->
