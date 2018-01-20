@@ -132,10 +132,8 @@ module.exports =
     if editor instanceof RemoteEditEditor
       remdir = editor.localFile.remoteFile.dirName
       atom.notifications.addSuccess("Re-opening: #{remdir} on #{editor.host.hostname}")
-      FilesView ?= require './view/files-view'
-      view = new FilesView(editor.host)
-      view.connect({}, remdir)
-      view.toggle()
+      @createFilesView().setHost(editor.host)
+      @createFilesView().connect({}, remdir)
     else
       @browse()
 

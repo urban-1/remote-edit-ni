@@ -1,5 +1,7 @@
 # remote-edit-ni for atom.io
 
+`master`: [![Build Status](https://travis-ci.org/newinnovations/remote-edit-ni.svg?branch=master)](https://travis-ci.org/newinnovations/remote-edit-ni) - `devel`: [![Build Status](https://travis-ci.org/newinnovations/remote-edit-ni.svg?branch=devel)](https://travis-ci.org/newinnovations/remote-edit-ni)
+
 This branch is an attempt at integrating the work of @urban-1 and @newinnovations.
 
 ## TODO
@@ -7,6 +9,14 @@ This branch is an attempt at integrating the work of @urban-1 and @newinnovation
 * Serious testing
 * Create a proper README
 * Check keybindings. They are now in the <kbd>Alt+r</kbd> range
+* Keyboard support in files-view, eg:
+  * focus when opening files
+  * up/down to select files
+  * enter to open or enter directory
+  * backspace to parent directory
+  * escape to close files-view
+  * mouse: single click selects file/dir
+  * mouse: double click opens file/dir
 
 ## Main keyboard shortcuts
 

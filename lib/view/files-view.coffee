@@ -30,7 +30,7 @@ module.exports =
           @span class: 'after icon-chevron-down'
         @div class: 'remote-edit-info focusable-panel', click: 'clickInfo', =>
           @p class: 'remote-edit-server', =>
-            @span class: 'remote-edit-server-type inline-block octicon-clippy', 'FTP:'
+            @span class: 'remote-edit-server-type inline-block octicon-clippy', 'Host:'
             @span class: 'remote-edit-server-alias inline-block highlight', outlet: 'server_alias', 'unknown'
           @p class: 'remote-edit-folder text-bold', =>
             @span 'Folder: '
