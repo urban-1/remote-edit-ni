@@ -1,4 +1,4 @@
-language: generic
+language: objective-c
 
 notifications:
   email:
@@ -6,12 +6,6 @@ notifications:
     on_failure: change
 
 script: 'curl -s https://raw.githubusercontent.com/atom/ci/master/build-package.sh | sh'
-
-# safelist
-branches:
-  only:
-  - master
-  - devel
 
 git:
   depth: 10
