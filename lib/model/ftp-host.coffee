@@ -173,7 +173,7 @@ module.exports =
       tmpArray = []
       tmpArray.push(LocalFile.deserialize(localFile, host: this)) for localFile in params.localFiles
       params.localFiles = tmpArray
-      params.password = new Buffer(params.password, "base64").toString("utf8")
+      params.password = if params.password then new Buffer(params.password, "base64").toString("utf8") else ""
       params
 
     createFolder: (folderpath, callback) ->
