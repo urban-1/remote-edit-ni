@@ -29,6 +29,7 @@ module.exports =
           @span class: 'middle icon-unfold'
           @span class: 'after icon-chevron-down'
         @div class: 'remote-edit-info focusable-panel', click: 'clickInfo', =>
+          @div class: 'remote-edit-message', outlet: 'message'
           @p class: 'remote-edit-server', =>
             @span class: 'remote-edit-server-type inline-block octicon-clippy', 'Host:'
             @span class: 'remote-edit-server-alias inline-block highlight', outlet: 'server_alias', 'unknown'
@@ -42,7 +43,6 @@ module.exports =
           @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
           @div class: 'remote-edit-file-scroller', =>
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
-          @div class: 'remote-edit-message', outlet: 'message'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
     doFilter: (e) ->
