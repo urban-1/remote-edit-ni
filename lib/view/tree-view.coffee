@@ -205,10 +205,13 @@ module.exports =
           if !item.localFile.host
             item.localFile.host = item.host
 
-          node = @getNodeForLocalFile(item.localFile)
           @deselect()
-          node.selected = true
-          @refreshUITree()
+          node = @getNodeForLocalFile(item.localFile)
+          if node
+            node.selected = true
+            @refreshUITree()
+          else
+            @addFile(item.localFile)
 
       # Folder/Server Click
       @on 'mousedown', 'li.folder', (e) =>
