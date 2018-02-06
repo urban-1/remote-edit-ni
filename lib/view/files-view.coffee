@@ -218,12 +218,12 @@ module.exports =
       @host.lastOpenDirectory = @path
       @server_folder.html(@path)
 
-    setHost: (host) ->
-      @host = host
-      #if !@host.isConnected()
-      @connect()
+    setHost: (host, connect_path = false) ->
+      if host != @host
+        @host?.close()
+        @host = host
+      @connect({}, connect_path)
       @show()
-
 
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([

@@ -132,8 +132,7 @@ module.exports =
     if editor instanceof RemoteEditEditor
       remdir = editor.localFile.remoteFile.dirName
       atom.notifications.addSuccess("Re-opening: #{remdir} on #{editor.host.hostname}")
-      @createFilesView().setHost(editor.host)
-      @createFilesView().connect({}, remdir)
+      @createFilesView().setHost(editor.host, remdir)
     else
       @browse()
 
