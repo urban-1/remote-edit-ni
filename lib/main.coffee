@@ -1,6 +1,8 @@
 _ = require 'underscore-plus'
 # Import needed to register deserializer
 RemoteEditEditor = require './model/remote-edit-editor'
+os = require 'os'
+
 
 # Deferred requirements
 OpenFilesView = null
@@ -12,7 +14,6 @@ SftpHost = null
 FtpHost = null
 LocalFile = null
 url = null
-Q = null
 InterProcessDataWatcher = null
 fs = null
 
@@ -31,14 +32,19 @@ module.exports =
       title: 'Display notifications'
       type: 'boolean'
       default: true
+    notificationLevel:
+      title: 'Notification Level'
+      type: 'string'
+      default: 'error'
+      enum: ['fatal', 'error', 'warning', 'info', 'debug']
     sshPrivateKeyPath:
       title: 'Path to private SSH key'
       type: 'string'
-      default: '~/.ssh/id_rsa'
+      default:  os.homedir() + '/.ssh/id_rsa'
     defaultSerializePath:
       title: 'Default path to serialize remoteEdit data'
       type: 'string'
-      default: '~/.atom/remoteEdit.json'
+      default: os.homedir() + '/.atom/remoteEdit.json'
     agentToUse:
       title: 'SSH agent'
       description: 'Overrides default SSH agent. See ssh2 docs for more info.'
@@ -57,7 +63,7 @@ module.exports =
       title: 'Clear file list'
       description: 'When enabled, the open files list will be cleared on initialization'
       type: 'boolean'
-      default: false
+      default: true
     rememberLastOpenDirectory:
       title: 'Remember last open directory'
       description: 'When enabled, browsing a host will return you to the last directory you entered'
@@ -83,6 +89,10 @@ module.exports =
         port:
           type: 'boolean'
           default: false
+    showOpenedTree:
+      title: 'Show Opened Files Tree'
+      type: 'boolean'
+      default: true
 
 
   activate: (state) ->
@@ -92,23 +102,23 @@ module.exports =
     atom.commands.add('atom-workspace', 'remote-edit:show-open-files', => @showOpenFiles())
     atom.commands.add('atom-workspace', 'remote-edit:browse', => @browse())
     atom.commands.add('atom-workspace', 'remote-edit:browse-more', => @browseMore())
-    atom.commands.add('atom-workspace', 'remote-edit:new-host-sftp', => @newHostSftp())
-    atom.commands.add('atom-workspace', 'remote-edit:new-host-ftp', => @newHostFtp())
+    atom.commands.add('atom-workspace', 'remote-edit:new-sftp-host', => @newHost("sftp"))
+    atom.commands.add('atom-workspace', 'remote-edit:new-ftp-host', => @newHost("ftp"))
+    atom.commands.add('atom-workspace', 'remote-edit:toggle-files-view', => @createFilesView().toggle())
+    atom.commands.add('atom-workspace', 'remote-edit:reload-current-folder', => @createFilesView().reloadFolder())
 
   deactivate: ->
     @ipdw?.destroy()
 
-  newHostSftp: ->
+  newHost: (type="sftp") ->
     HostView ?= require './view/host-view'
-    SftpHost ?= require './model/sftp-host'
-    host = new SftpHost()
-    view = new HostView(host, @getOrCreateIpdw())
-    view.toggle()
+    if type == "sftp"
+      SftpHost ?= require './model/sftp-host'
+      host = new SftpHost()
+    else if type == "ftp"
+      FtpHost ?= require './model/ftp-host'
+      host = new FtpHost()
 
-  newHostFtp: ->
-    HostView ?= require './view/host-view'
-    FtpHost ?= require './model/ftp-host'
-    host = new FtpHost()
     view = new HostView(host, @getOrCreateIpdw())
     view.toggle()
 
@@ -122,10 +132,7 @@ module.exports =
     if editor instanceof RemoteEditEditor
       remdir = editor.localFile.remoteFile.dirName
       atom.notifications.addSuccess("Re-opening: #{remdir} on #{editor.host.hostname}")
-      FilesView ?= require './view/files-view'
-      view = new FilesView(editor.host)
-      view.connect({}, remdir)
-      view.toggle()
+      @createFilesView().setHost(editor.host, remdir)
     else
       @browse()
 
@@ -133,6 +140,12 @@ module.exports =
     OpenFilesView ?= require './view/open-files-view'
     showOpenFilesView = new OpenFilesView(@getOrCreateIpdw())
     showOpenFilesView.toggle()
+
+  createFilesView: ->
+    unless @filesView?
+      FilesView = require './view/files-view'
+      @filesView = new FilesView(@state)
+    @filesView
 
   initializeIpdwIfNecessary: ->
     if atom.config.get 'remote-edit-ni.notifications'
@@ -160,7 +173,6 @@ module.exports =
       return unless protocol is 'remote-edit:'
 
       if host is 'localfile'
-        Q ?= require 'q'
         Host ?= require './model/host'
         FtpHost ?= require './model/ftp-host'
         SftpHost ?= require './model/sftp-host'
@@ -169,7 +181,7 @@ module.exports =
         host = Host.deserialize(JSON.parse(decodeURIComponent(query.host)))
 
         atom.project.bufferForPath(localFile.path).then (buffer) ->
-          params = {buffer: buffer, registerEditor: true, host: host, localFile: localFile}
+          params = {buffer: buffer, registerEditor: true, host: host, localFile: localFile, autoHeight: false}
           # copied from workspace.buildTextEditor
           ws = atom.workspace
           params = _.extend({

@@ -1,40 +1,55 @@
-# remote-edit-ni for atom.io [newinnovations fork of remote-edit]
+# remote-edit-ni for atom.io
 
-Atom package to browse and edit remote files using SSH and FTP.
+[![Build Status](https://travis-ci.org/newinnovations/remote-edit-ni.svg?branch=master)](https://travis-ci.org/newinnovations/remote-edit-ni)
 
-This fork differs from the original package sveale/remote-edit:
+Remote-edit-ni is a continuation of the remote-edit package. It is compatible with the latest version of atom (1.24.x at the time of writing).
 
-* Several changes in atom have broken sveale/remote-edit. This fork currently supports the changes in atom up to version 1.23.x.
-* The original reason behind this fork is to have the possibility to open additional files from the same remote directory as the current editor tab. Using <kbd>Alt+r m</kbd>. ("m" for more)
-* Keybindings in remote-edit-ni are under <kbd>Alt+r</kbd>. ("r" for remote)
+This version integrates the work of @urban-1 and @newinnovations.
 
 
-## Keyboard shortcuts
+## Main keyboard shortcuts
 
-<kbd>Alt+r b</kbd>
+- <kbd>Alt+r b</kbd> -
 Select remote host and start browsing in / or last directory (when selected in preferences).
 
-<kbd>Alt+r m</kbd>
+- <kbd>Alt+r m</kbd> -
 Browse remote host in directory of the current editor tab.
 
-<kbd>Alt+r o</kbd>
-Show open remote files.
+-   <kbd>Alt+r v</kbd> -
+Show/hide remote-edit panel
+
+- <kbd>Alt+r o</kbd> -
+Show open (downloaded) remote files.
+
 
 ### shortcuts within _host selection_ dialog
 
-<kbd>Shift+a</kbd> or <kbd>Shift+s</kbd>
+- <kbd>Shift+a</kbd> or <kbd>Shift+s</kbd> -
 Add sftp host.
 
-<kbd>Shift+f</kbd>
+- <kbd>Shift+f</kbd> -
 Add ftp host.
 
-<kbd>Shift+e</kbd>
+- <kbd>Shift+e</kbd> -
 Edit hosts.
 
-<kbd>Shift+d</kbd>
+- <kbd>Shift+d</kbd> -
 Delete hosts or downloaded files. Usable when selecting hosts (_Browse_) or open files (_Show open remote files_).
 
 
-## Security concerns
- * By default, __all information is stored in cleartext to disk__. This includes passwords and passphrases.
- * Passwords and passphrases can alternatively be stored in the systems __default keychain__ by enabling it in the settings page for remote-edit. This is achieved using [node-keytar](https://github.com/atom/node-keytar) and might not work on all systems.
+## TODO
+
+* Check keybindings. They are now in the <kbd>Alt+r</kbd> range
+* Keyboard support in files-view, eg:
+  * focus when opening files
+  * up/down to select files
+  * enter to open or enter directory
+  * backspace to parent directory
+  * escape to close files-view
+  * mouse: single click selects file/dir
+  * mouse: double click opens file/dir
+
+
+## Credits
+This is a fork of a project created by Sverre Aleksandersen (sveale). It was
+forked to implement bug fixes and several new features.

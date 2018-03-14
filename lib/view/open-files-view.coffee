@@ -2,10 +2,10 @@
 {CompositeDisposable} = require 'atom'
 
 async = require 'async'
-Q = require 'q'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
 moment = require 'moment'
+Path = require 'path'
 
 LocalFile = require '../model/local-file'
 
@@ -58,8 +58,15 @@ module.exports =
           @div class: 'secondary-line no-icon text-subtle', "Downloaded: #{localFile.dtime}, Mtime: #{mtime}"
 
     confirmed: (localFile) ->
-      uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
-      atom.workspace.open(uri, split: 'left')
+      uri = Path.normalize(localFile.path)
+      filePane = atom.workspace.paneForURI(uri)
+
+      if filePane?
+        filePane.activateItemForURI(uri)
+      else
+        uri = "remote-edit://localFile/?localFile=#{encodeURIComponent(JSON.stringify(localFile.serialize()))}&host=#{encodeURIComponent(JSON.stringify(localFile.host.serialize()))}"
+        atom.workspace.open(uri, split: 'left')
+
       @cancel()
 
     listenForEvents: ->

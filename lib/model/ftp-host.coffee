@@ -1,16 +1,16 @@
-Host = require './host'
+# OCDz...
+Serializable = require 'serializable'
+filesize = require 'file-size'
+moment = require 'moment'
+async = require 'async'
+Path = require 'path'
+ftp = require 'ftp'
+fs = require 'fs-plus'
+_ = require 'underscore-plus'
 
 RemoteFile = require './remote-file'
 LocalFile = require './local-file'
-
-async = require 'async'
-filesize = require 'file-size'
-moment = require 'moment'
-ftp = require 'ftp'
-Serializable = require 'serializable'
-Path = require 'path'
-_ = require 'underscore-plus'
-fs = require 'fs-plus'
+Host = require './host'
 
 try
   keytar = require 'keytar'
@@ -128,7 +128,7 @@ module.exports =
       async.waterfall([
         (callback) =>
           @connection.get(localFile.remoteFile.path, callback)
-        (readableStream, callback) =>
+        (readableStream, callback) ->
           writableStream = fs.createWriteStream(localFile.path)
           readableStream.pipe(writableStream)
           readableStream.on 'end', -> callback(null)
@@ -165,7 +165,7 @@ module.exports =
         @port
         localFiles: localFile.serialize() for localFile in @localFiles
         @usePassword
-        @password
+        password: new Buffer(@password).toString("base64")
         @lastOpenDirectory
       }
 
@@ -173,4 +173,104 @@ module.exports =
       tmpArray = []
       tmpArray.push(LocalFile.deserialize(localFile, host: this)) for localFile in params.localFiles
       params.localFiles = tmpArray
+      params.password = if params.password then new Buffer(params.password, "base64").toString("utf8") else ""
       params
+
+    createFolder: (folderpath, callback) ->
+      async.waterfall([
+        (callback) =>
+          @connection.mkdir(folderpath, callback)
+      ], (err) =>
+        if err?
+          @emitter.emit('info', {message: "Error occurred when creating remote folder ftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'error'})
+          console.error err if err?
+        else
+          @emitter.emit('info', {message: "Successfully created remote folder ftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'success'})
+        callback?(err)
+      )
+
+    createFile: (filepath, callback) ->
+      if filepath.indexOf(".") == -1
+        @emitter.emit('info', {message: "Invalid file name", type: 'error'})
+      else
+        @connection.get(filepath, (err, result) =>
+          if result
+            @emitter.emit('info', {message: "File already exists", type: 'error'})
+          else
+            async.waterfall([
+              (callback) =>
+                @connection.put(new Buffer(''), filepath, callback)
+            ], (err) =>
+              if err?
+                @emitter.emit('info', {message: "Error occurred when writing remote file ftp://#{@username}@#{@hostname}:#{@port}#{filepath}", type: 'error'})
+                console.error err if err?
+              else
+                @emitter.emit('info', {message: "Successfully wrote remote file ftp://#{@username}@#{@hostname}:#{@port}#{filepath}", type: 'success'})
+              callback?(err)
+            )
+        )
+
+    renameFolderFile: (path, oldName, newName, isFolder, callback) ->
+      if oldName == newName
+        @emitter.emit('info', {message: "The new name is same as the old", type: 'error'})
+        return
+
+      oldPath = path + "/" + oldName
+      newPath = path + "/" + newName
+
+      @moveFolderFile(oldPath, newPath, isFolder, callback)
+
+
+    moveFolderFile: (oldPath, newPath, isFolder, callback) =>
+      async.waterfall([
+        (callback) =>
+          if(isFolder)
+            @connection.list(newPath, callback)
+          else
+            @connection.get(newPath, callback)
+      ], (err, result) =>
+        if (isFolder and result.length > 0) or (!isFolder and result)
+          @emitter.emit('info', {message: "#{if isFolder then 'Folder' else 'File'} already exists", type: 'error'})
+        else
+          async.waterfall([
+            (callback) =>
+              @connection.rename(oldPath, newPath, callback)
+          ], (err) =>
+            if err?
+              @emitter.emit('info', {message: "Error occurred when renaming remote folder/file ftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'error'})
+              console.error err if err?
+            else
+              @emitter.emit('info', {message: "Successfully renamed remote folder/file ftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'success'})
+            callback?(err)
+          )
+      )
+
+    deleteFolderFile: (deletepath, isFolder, callback) ->
+      if isFolder
+        @connection.rmdir(deletepath, (err) =>
+          if err?
+            @emitter.emit('info', {message: "Error occurred when deleting remote folder ftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'error'})
+            console.error err if err?
+          else
+            @emitter.emit('info', {message: "Successfully deleted remote folder ftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'success'})
+          callback?(err)
+        )
+      else
+        @connection.delete(deletepath, (err) =>
+          if err?
+            @emitter.emit('info', {message: "Error occurred when deleting remote file ftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'error'})
+            console.error err if err?
+          else
+            @emitter.emit('info', {message: "Successfully deleted remote file ftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'success'})
+          callback?(err)
+        )
+
+    setPermissions: (path, permissions, callback) =>
+      cmd = "CHMOD #{permissions} #{path}"
+      @connection.site(cmd, (err) =>
+        if err?
+          @emitter.emit('info', {message: "Cannot set permissions to ftp://#{@username}@#{@hostname}:#{@port}#{path}", type: 'error'})
+          console.error err if err?
+
+        callback?(err)
+      )

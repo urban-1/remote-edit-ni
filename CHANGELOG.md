@@ -1,3 +1,27 @@
+## 3.3.0
+
+* Support for Atom 1.23.x - FULL CREDIT TO remote-edit-NI (newinnovations)
+* RemoteEditEditor.upload now returns a promise
+* [fix] Dealing with timeout and connection state detection
+* [fix] For the original #226 (treating TextEditor.save as a Promise)
+
+## 3.2.0
+
+* Tree view of the opened files
+* Default paths using os.homedir() instead of ~
+* Notification level settings to reduce number of popups (https://github.com/sveale/remote-edit/issues/119)
+* Hiding password fields (https://github.com/sveale/remote-edit/issues/132)
+* Allow settings permissions to remote file/folder (https://github.com/sveale/remote-edit/issues/214)
+* Added rwlock when updating remoteEdit.json to avoid corrupting it
+
+## 3.1.1 (02/09/2017)
+
+* Clean up localFiles on tab close
+* Avoid using timestamp on local file name so already opened files are detected
+
+
+## ...
+
 ## 1.7.0
 * Convert package to conform to Atom 1.0 API
 

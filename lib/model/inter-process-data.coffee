@@ -40,7 +40,7 @@ module.exports =
         @disposables.add atom.workspace.observeTextEditors((editor) =>
           if editor instanceof RemoteEditEditor
             # If a host emits information ('info'), forward this to @messages
-            @disposables.add editor.host.onInfo (info) => atom.notifications.add(info.type, info.message)
+            @disposables.add editor.host.onInfo (info) => @notificationHandler(info)
         )
 
     serializeParams: ->
@@ -70,7 +70,23 @@ module.exports =
         @emitter.emit 'did-change'
 
       if atom.config.get 'remote-edit-ni.notifications'
-        @disposables.add host.onInfo (info) => atom.notifications.add(info.type, info.message)
+        @disposables.add host.onInfo (info) => @notificationHandler(info)
+
+    # Map notifications to a level
+    _levelMap: (strLevel) ->
+      level = switch
+        when strLevel == "debug" then 10
+        when strLevel == "info"  then 20
+        when strLevel == "warning" then 30
+        when strLevel == "error"  then 40
+        when strLevel == "fatal"  then 50
+        else 10
+
+    # Handle and filter notifications based on the level configured in settinst
+    notificationHandler: (info) ->
+      if @_levelMap(info.type) < @_levelMap(atom.config.get('remote-edit-ni.notificationLevel'))
+        return
+      atom.notifications.add(info.type, info.message)
 
     addNewHost: (host) ->
       @hostList.push(host)

@@ -6,6 +6,7 @@ _ = require 'underscore-plus'
 osenv = require 'osenv'
 fs = require 'fs-plus'
 
+
 module.exports =
   class Host
     Serializable.includeInto(this)
@@ -61,6 +62,21 @@ module.exports =
     writeFile: (localFile, callback) ->
       throw new Error("Must be implemented in subclass!")
 
+    createFolder: (folderpath, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
+    createFile: (filepath, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
+    deleteFolderFile: (deletepath, isFolder, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
+    renameFolderFile: (path, oldName, newName, isFolder, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
+    setPermissions: (path, permissions, callback) ->
+      throw new Error("Must be implemented in subclass!")
+
     serializeParams: ->
       throw new Error("Must be implemented in subclass!")
 
@@ -70,11 +86,11 @@ module.exports =
     hashCode: ->
       hash(@hostname + @directory + @username + @port)
 
-    addLocalFile: (localFile) ->
+    addLocalFile: (localFile) =>
       @localFiles.push(localFile)
       @emitter.emit 'did-change', localFile
 
-    removeLocalFile: (localFile) ->
+    removeLocalFile: (localFile) =>
       @localFiles = _.reject(@localFiles, ((val) -> val == localFile))
       @emitter.emit 'did-change', localFile
 

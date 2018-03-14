@@ -10,21 +10,29 @@
 '.platform-darwin':
   'ctrl-cmd-b': 'remote-edit:browse'
   'ctrl-cmd-o': 'remote-edit:show-open-files'
+  'ctrl-cmd-\\': 'remote-edit:toggle-files-view'
 
 '.platform-win32, .platform-linux':
   'alt-r b': 'remote-edit:browse'
   'alt-r o': 'remote-edit:show-open-files'
   'alt-r m': 'remote-edit:browse-more'
+  'alt-r v': 'remote-edit:toggle-files-view'
 
 '.open-files-view.select-list':
   'shift-d': 'openfilesview:delete'
 
 '.hosts-view.select-list':
-  'shift-a': 'remote-edit:new-host-sftp'
-  'shift-s': 'remote-edit:new-host-sftp'
-  'shift-f': 'remote-edit:new-host-ftp'
+  'shift-a': 'remote-edit:new-sftp-host'
+  'shift-s': 'remote-edit:new-sftp-host'
+  'shift-f': 'remote-edit:new-ftp-host'
   'shift-d': 'hostview:delete'
   'shift-e': 'hostview:edit'
 
 '.files-view.select-list':
   'shift-o': 'filesview:open'
+
+'.host-view':
+  'tab': 'host-view:focus-next'
+  'shift-tab': 'host-view:focus-previous'
+'.remote-edit-tree-views':
+  'backspace': 'filesview:previous-folder'

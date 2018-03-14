@@ -1,5 +1,4 @@
 {$, $$} = require 'atom-space-pen-views'
-Q = require 'q'
 
 CreateFixtures = require './create-fixtures'
 
