@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/newinnovations/remote-edit-ni.svg?branch=master)](https://travis-ci.org/newinnovations/remote-edit-ni)
 
-Remote-edit-ni is a continuation of the remote-edit package. It is compatible with the latest version of atom (1.24.x at the time of writing).
+Remote-edit-ni is a continuation of the remote-edit package. It is compatible with the latest version of atom (1.25.x at the time of writing).
 
 This version integrates the work of @urban-1 and @newinnovations.
 
