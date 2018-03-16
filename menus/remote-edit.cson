@@ -7,8 +7,8 @@
       'submenu': [
         { 'label': 'Show Open Files', 'command': 'remote-edit:show-open-files' }
         { 'label': 'Browse Hosts', 'command': 'remote-edit:browse' }
-        { 'label': 'Add New Host (sftp)', 'command': 'remote-edit:new-host-sftp' }
-        { 'label': 'Add New Host (ftp)', 'command': 'remote-edit:new-host-ftp' }
+        { 'label': 'Add New Host (sftp)', 'command': 'remote-edit:new-sftp-host' }
+        { 'label': 'Add New Host (ftp)', 'command': 'remote-edit:new-ftp-host' }
         { 'label': 'Toggle files view', 'command': 'remote-edit:toggle-files-view' }
     ]
     ]
