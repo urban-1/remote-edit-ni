@@ -41,7 +41,7 @@ module.exports =
           # @tag 'atom-text-editor', 'mini': true, class: 'native-key-bindings', outlet: 'filter'
           # Gettext does not exist cause there is no model behind this...
           @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
-          @div class: 'remote-edit-file-scroller', =>
+          @div class: 'remote-edit-file-scroller', outlet: 'scroller', =>
             @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
@@ -358,6 +358,27 @@ module.exports =
       @width(1) # Shrink to measure the minimum width of list
       @width(Math.max(@list.outerWidth(), @treeView.treeUI.outerWidth()+10))
 
+    scrollToView: (element, parent) ->
+        # element = $(element);
+        # parent = $(parent);
+
+        offset = element.offset().top - parent.offset().top + parent.scrollTop();
+        height = element.innerHeight();
+        offset_end = offset + height;
+
+        visible_area_start = parent.scrollTop();
+        visible_area_end = visible_area_start + parent.innerHeight();
+        
+        if (offset < visible_area_start)
+             parent.scrollTop(offset);
+             return false;
+        else if (offset_end > visible_area_end)
+            parent.scrollTop(parent.scrollTop() + offset_end - visible_area_end + 10);
+            return false;
+
+        return true;
+
+
     listSelectNext: =>
       item = @getSelectedItem()
       if item.next('li').length == 0
@@ -365,6 +386,7 @@ module.exports =
 
       @deselect()
       item.next('li').addClass('selected').data('select-list-item')
+      @scrollToView(@getSelectedItem(), @scroller)
 
     listSelectPrev: =>
       item = @getSelectedItem()
@@ -373,6 +395,7 @@ module.exports =
 
       @deselect()
       item.prev('li').addClass('selected').data('select-list-item')
+      @scrollToView(@getSelectedItem(), @scroller)
 
     listEnter: =>
       item = @getSelectedItem()
