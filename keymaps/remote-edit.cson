@@ -11,12 +11,14 @@
   'ctrl-cmd-b': 'remote-edit:browse'
   'ctrl-cmd-o': 'remote-edit:show-open-files'
   'ctrl-cmd-\\': 'remote-edit:toggle-files-view'
+  'ctrl-cmd-f': 'filesview:list-focus'
 
 '.platform-win32, .platform-linux':
   'alt-r b': 'remote-edit:browse'
   'alt-r o': 'remote-edit:show-open-files'
   'alt-r m': 'remote-edit:browse-more'
   'alt-r v': 'remote-edit:toggle-files-view'
+  'alt-r f': 'filesview:list-focus'
 
 '.open-files-view.select-list':
   'shift-d': 'openfilesview:delete'
@@ -34,5 +36,9 @@
 '.host-view':
   'tab': 'host-view:focus-next'
   'shift-tab': 'host-view:focus-previous'
+
 '.remote-edit-tree-views':
   'backspace': 'filesview:previous-folder'
+  'up': 'filesview:list-select-prev'
+  'down': 'filesview:list-select-next'
+  'enter': 'filesview:list-enter'

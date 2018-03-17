@@ -114,7 +114,7 @@ module.exports =
           else
             callback(null)
         (callback) =>
-          @populate(dir, callback)
+          @openDirectory(dir, callback)
       ], (err, result) =>
         if err?
           console.error err
@@ -175,7 +175,9 @@ module.exports =
           if item.name != '..'
             @span class: 'text-subtle text-smaller', "S: #{item.size}, M: #{item.lastModified}, P: #{item.permissions}"
 
-    populate: (dir, callback) ->
+    openDirectory: (dir, callback) ->
+      dir = upath.normalize(dir)
+      @host.invalidate()
       async.waterfall([
         (callback) =>
           if !@host.isConnected()
@@ -188,6 +190,7 @@ module.exports =
         (items, callback) =>
           items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit-ni.foldersOnTop'
           @setItems(items)
+          @list.children().first().addClass('selected')
           callback(undefined, undefined)
       ], (err, result) =>
         if ! err
@@ -273,11 +276,7 @@ module.exports =
           if filePane
             filePaneItem = filePane.itemForURI(uri)
             filePane.activateItem(filePaneItem)
-            # confirmResult = atom.confirm
-            #   message: 'Reopen this file?'
-            #   detailedMessage: 'Unsaved data will be lost.'
-            #   buttons: ['Yes','No']
-            # confirmResult: Yes = 0, No = 1, Close button = 1
+
             confirmResult = ElectronDialog.showMessageBox({
                     title: "File Already Opened...",
                     message: "Reopen this file? Unsaved changes will be lost",
@@ -314,22 +313,6 @@ module.exports =
           @treeView.addFile(localFile)
       )
 
-    openDirectory: (dir, callback) =>
-      dir = upath.normalize(dir)
-      async.waterfall([
-        (callback) =>
-          if !@host.isConnected()
-            @setMessage("Connecting...")
-            @host.connect(callback)
-          else
-            callback(null)
-        (callback) =>
-          @host.invalidate()
-          @populate(dir, callback)
-      ], (err) ->
-        callback?(err)
-      )
-
     #
     # Called on event listener to handle all actions of the file list
     #
@@ -345,10 +328,10 @@ module.exports =
             @openFile(item)
           else if item.isDir
             @host.invalidate()
-            @populate(item.path)
+            @openDirectory(item.path)
           else if item.isLink
             if atom.config.get('remote-edit-ni.followLinks')
-              @populate(item.path)
+              @openDirectory(item.path)
             else
               @openFile(item)
       ], (err, savePath) ->
@@ -375,8 +358,35 @@ module.exports =
       @width(1) # Shrink to measure the minimum width of list
       @width(Math.max(@list.outerWidth(), @treeView.treeUI.outerWidth()+10))
 
+    listSelectNext: =>
+      item = @getSelectedItem()
+      if item.next('li').length == 0
+        return
+
+      @deselect()
+      item.next('li').addClass('selected').data('select-list-item')
+
+    listSelectPrev: =>
+      item = @getSelectedItem()
+      if item.prev('li').length == 0
+        return
+
+      @deselect()
+      item.prev('li').addClass('selected').data('select-list-item')
+
+    listEnter: =>
+      item = @getSelectedItem()
+      if !item
+        return
+      @confirmed(item.data('select-list-item'))
+      @list.focus()
+
+
+
     listenForEvents: ->
-      @list.on 'mousedown', 'li', (e) =>
+
+      @list.on 'dblclick', 'li', (e) =>
+        @list.focus()
         if $(e.target).closest('li').hasClass('selected')
           false
         @deselect()
@@ -387,6 +397,15 @@ module.exports =
           false
         else if e.which == 3
           false
+
+      @list.on 'mousedown', 'li', (e) =>
+        @list.focus()
+        if $(e.target).closest('li').hasClass('selected')
+          false
+        @deselect()
+        @selectedItem = $(e.target).closest('li').addClass('selected').data('select-list-item')
+        e.preventDefault()
+        false
 
       @on 'dblclick', '.remote-edit-resize-handle', =>
         @resizeToFitContent()
@@ -420,15 +439,22 @@ module.exports =
         @doFilter(e)
 
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:open', =>
+        # FIXME: This does not return item's data
         item = @getSelectedItem()
         if item.isFile
           @openFile(item)
         else if item.isDir
           @openDirectory(item)
 
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-select-next', => @listSelectNext()
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-select-prev', => @listSelectPrev()
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-enter', => @listEnter()
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:previous-folder', =>
         if @path.length > 1
           @openDirectory(@path + path.sep + '..')
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-focus', =>
+        @list.children().first().addClass('selected')
+        @list.focus()
 
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:set-permissions', => @setPermissions()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:create-folder', => @createFolder()
@@ -591,7 +617,10 @@ module.exports =
         )
 
     deselect: () ->
-        @list.find('li.selected').removeClass('selected');
+      @list.find('li.selected').removeClass('selected');
+
+    getSelectedItem: ->
+      return @list.find('li.selected')
 
     setError: (message='') ->
       @emitter.emit 'info', {message: message, type: 'error'}
