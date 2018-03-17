@@ -115,6 +115,7 @@ module.exports =
             callback(null)
         (callback) =>
           @openDirectory(dir, callback)
+          @list.focus()
       ], (err, result) =>
         if err?
           console.error err
@@ -368,7 +369,7 @@ module.exports =
 
         visible_area_start = parent.scrollTop();
         visible_area_end = visible_area_start + parent.innerHeight();
-        
+
         if (offset < visible_area_start)
              parent.scrollTop(offset);
              return false;
