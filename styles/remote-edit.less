@@ -159,13 +159,14 @@
         padding: 0;
         list-style: none;
         cursor: default;
+        position: static;
     }
 
     // First level items...
     .list-entries li {
         padding-left: 8px;
         white-space: nowrap;
-        position: relative;
+        position: static;
     }
 
     // All other level folders
@@ -200,6 +201,7 @@
         width: 12px;
         height: 12px;
         content: "\f0a3";
+        display: inline-block;
     }
 
     // Collapsed folder
@@ -210,20 +212,20 @@
         content: "\f078";
     }
 
-    // // TODO: FIXME: The following never worked... weird behaviour
-    // .list-entries li::before {
-    //     content: '';
-    //     position: absolute;
-    //     margin-top: -2px;
-    //     left: 0;
-    //     right: 0;
-    //     height: 25px;
-    //     z-index: -1;
-    // }
-    //
-    // .list-entries li.selected::before {
-    //     background-color: #2c313a;
-    // }
+    // highlight on select
+    .list-entries li::before {
+        content: '';
+        position: absolute;
+        margin-top: -2px;
+        left: 0;
+        right: 0;
+        height: 25px;
+        z-index: -1;
+    }
+
+    .list-entries li.selected::before {
+        background-color: #2c313a;
+    }
 }
 
 .remote-edit-panel-toggle {
