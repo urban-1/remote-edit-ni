@@ -42,7 +42,7 @@ module.exports =
           # Gettext does not exist cause there is no model behind this...
           @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
           @div class: 'remote-edit-file-scroller', outlet: 'scroller', =>
-            @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
+            @ol class: 'list-tree full-menu focusable-panel', tabindex: 1, outlet: 'list'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
     doFilter: (e) ->
@@ -191,7 +191,7 @@ module.exports =
         (items, callback) =>
           items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit-ni.foldersOnTop'
           @setItems(items)
-          @list.children().first().addClass('selected')
+          @selectInitialItem()
           callback(undefined, undefined)
       ], (err, result) =>
         if ! err
@@ -223,9 +223,11 @@ module.exports =
       @server_folder.html(@path)
 
     setHost: (host, connect_path = false) ->
-      if host != @host
-        @host?.close()
-        @host = host
+      if host == @host
+        return
+
+      @host?.close()
+      @host = host
       @connect({}, connect_path)
       @show()
 
@@ -294,7 +296,6 @@ module.exports =
             localFile = new LocalFile(savePath, file, dtime, @host)
             @host.getFile(localFile, callback)
       ], (err, localFile) =>
-        @deselect()
         if err?
           @setError(err)
           console.error err
@@ -477,7 +478,7 @@ module.exports =
         if @path.length > 1
           @openDirectory(@path + path.sep + '..')
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-focus', =>
-        @list.children().first().addClass('selected')
+        @selectInitialItem()
         @list.focus()
 
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:set-permissions', => @setPermissions()
@@ -488,6 +489,18 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:remove-folder-file', => @deleteFolderFile()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:cut-folder-file', => @copycutFolderFile(true)
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:paste-folder-file', => @pasteFolderFile()
+
+    # Default selection on focus or on enter directory
+    selectInitialItem: () =>
+      # Refuse to select if something already selected
+      if @getSelectedItem().length
+        return
+
+      # Ensure we are not in a empty directory
+      if @list.children().length > 1
+        @list.children().first().next().addClass('selected')
+      else
+        @list.children().first().addClass('selected')
 
     selectItemByPath: (path) ->
       @deselect()

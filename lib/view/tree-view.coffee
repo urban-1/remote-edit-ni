@@ -286,7 +286,6 @@ module.exports =
           folder = node.meta.remoteFile.dirName
           file = node.meta.remoteFile.path
         else
-
           folder = "/"
           if node.isFolder
             folder = @rightClickNode.data('node-path')
