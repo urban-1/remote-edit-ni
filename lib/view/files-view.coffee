@@ -86,7 +86,7 @@ module.exports =
         else
           @treeView.addClass('hidden')
 
-    connect: (connectionOptions = {}, connect_path = false) ->
+    connect: (connectionOptions = {}, connect_path = false, callback) ->
       console.debug "connect(): re-connecting (FilesView::connect) to path=#{connect_path}"
       dir = upath.normalize(if connect_path then connect_path else if atom.config.get('remote-edit-ni.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory)
       async.waterfall([
@@ -115,7 +115,6 @@ module.exports =
             callback(null)
         (callback) =>
           @openDirectory(dir, callback)
-          @list.focus()
       ], (err, result) =>
         if err?
           console.error err
@@ -138,6 +137,9 @@ module.exports =
             )
           else
             @setError(err)
+
+        @list.focus()
+        callback?(null)
       )
 
     getFilterKey: ->
@@ -191,7 +193,6 @@ module.exports =
         (items, callback) =>
           items = _.sortBy(items, 'isFile') if atom.config.get 'remote-edit-ni.foldersOnTop'
           @setItems(items)
-          @selectInitialItem()
           callback(undefined, undefined)
       ], (err, result) =>
         if ! err
@@ -222,14 +223,27 @@ module.exports =
       @host.lastOpenDirectory = @path
       @server_folder.html(@path)
 
-    setHost: (host, connect_path = false) ->
-      if host == @host
+    setHost: (host, connect_path = false, callback) ->
+      if host.hostname == @host?.hostname
+        if connect_path
+          @openDirectory(connect_path, callback)
+        else
+          callback?(null)
+
+        @list.focus()
         return
 
       @host?.close()
       @host = host
-      @connect({}, connect_path)
       @show()
+
+      # Extend the callers' callback with some basic post-connect functions
+      @connect({}, connect_path, () =>
+        @list.focus()
+        @selectInitialItem()
+        callback?()
+      )
+
 
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
@@ -317,6 +331,7 @@ module.exports =
 
     #
     # Called on event listener to handle all actions of the file list
+    # TODO: This is async, add callback support if/when needed
     #
     confirmed: (item) ->
       async.waterfall([
@@ -330,10 +345,10 @@ module.exports =
             @openFile(item)
           else if item.isDir
             @host.invalidate()
-            @openDirectory(item.path)
+            @openDirectory(item.path, () => @selectInitialItem())
           else if item.isLink
             if atom.config.get('remote-edit-ni.followLinks')
-              @openDirectory(item.path)
+              @openDirectory(item.path, () => @selectInitialItem())
             else
               @openFile(item)
       ], (err, savePath) ->
@@ -471,16 +486,25 @@ module.exports =
         else if item.isDir
           @openDirectory(item)
 
+      # Files-view Commands
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-select-next', => @listSelectNext()
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-select-prev', => @listSelectPrev()
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-enter', => @listEnter()
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:previous-folder', =>
         if @path.length > 1
-          @openDirectory(@path + path.sep + '..')
+          # Open directory and focus on the list
+          @openDirectory(@path + path.sep + '..',
+            () =>
+              @selectInitialItem()
+              @list.focus()
+          )
+
+
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-focus', =>
         @selectInitialItem()
         @list.focus()
 
+      # Remote-edit Commands
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:set-permissions', => @setPermissions()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:create-folder', => @createFolder()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:create-file', => @createFile()
@@ -489,6 +513,31 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:remove-folder-file', => @deleteFolderFile()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:cut-folder-file', => @copycutFolderFile(true)
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:paste-folder-file', => @pasteFolderFile()
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:reveal-in-browser', => @revealCurrentFile()
+
+    # Reveal the current tab/file in browser ONLY if it is a remote RemoteEditEditor
+    revealCurrentFile: () ->
+        editor = atom.workspace.getActiveTextEditor()
+        localFile = editor?.localFile
+        if !localFile
+            return
+
+        # Show this file
+        @revealFile(
+            editor?.host,
+            localFile.remoteFile.dirName,
+            localFile.remoteFile.path
+        )
+
+    # Reveal a file in the browser, given the host, the folder path and the
+    # file path. This can be called with file=null to change folder.
+    revealFile: (host, folder, file) =>
+      if file
+        @setHost(host, folder, () => @selectItemByPath(file))
+      else
+        @setHost(host, folder, () => @selectInitialItem())
+
+
 
     # Default selection on focus or on enter directory
     selectInitialItem: () =>
@@ -504,7 +553,9 @@ module.exports =
 
     selectItemByPath: (path) ->
       @deselect()
-      $('li.list-item span[data-path="'+path+'"]').closest('li').addClass('selected')
+      item = $('li.list-item span[data-path="'+path+'"]').closest('li')
+      item.addClass('selected')
+      @scrollToView(item, @scroller)
 
     setItems: (@items=[]) ->
       @message.hide()
