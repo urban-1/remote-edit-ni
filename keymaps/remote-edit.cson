@@ -10,7 +10,7 @@
 '.platform-darwin':
   'cmd-r b': 'remote-edit:browse'
   'cmd-r o': 'remote-edit:show-open-files'
-  'cmd-r \\': 'remote-edit:toggle-files-view'
+  'cmd-r v': 'remote-edit:toggle-files-view'
   'cmd-r f': 'filesview:list-focus'
   'cmd-r m': 'remote-edit:reveal-in-browser'
 

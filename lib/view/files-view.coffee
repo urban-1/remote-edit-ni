@@ -223,7 +223,13 @@ module.exports =
       @host.lastOpenDirectory = @path
       @server_folder.html(@path)
 
+    # This is the "main" entry point for external components to interact with
+    # the left side panel
     setHost: (host, connect_path = false, callback) ->
+      # Ensure the panel is visible
+      @show()
+
+      # Avoid re-connecting if the hostname is the same
       if host.hostname == @host?.hostname
         if connect_path
           @openDirectory(connect_path, callback)
@@ -235,7 +241,6 @@ module.exports =
 
       @host?.close()
       @host = host
-      @show()
 
       # Extend the callers' callback with some basic post-connect functions
       @connect({}, connect_path, () =>
