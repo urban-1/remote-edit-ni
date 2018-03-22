@@ -12,14 +12,14 @@
   'cmd-r o': 'remote-edit:show-open-files'
   'cmd-r v': 'remote-edit:toggle-files-view'
   'cmd-r f': 'filesview:list-focus'
-  'cmd-r m': 'remote-edit:reveal-in-browser'
+  'cmd-r m': 'remote-edit:browse-more'
 
 '.platform-win32, .platform-linux':
   'alt-r b': 'remote-edit:browse'
   'alt-r o': 'remote-edit:show-open-files'
-  'alt-r m': 'remote-edit:browse-more'
   'alt-r v': 'remote-edit:toggle-files-view'
   'alt-r f': 'filesview:list-focus'
+  'alt-r m': 'remote-edit:browse-more'
 
 '.open-files-view.select-list':
   'shift-d': 'openfilesview:delete'
