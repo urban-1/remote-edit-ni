@@ -20,8 +20,6 @@ module.exports =
 
     @content: ->
       @div class: 'remote-edit-opened-tree', =>
-        #@div class: 'remote-edit-treeview-header', =>
-        @span class: 'remote-edit-treeview-header inline-block', 'Open Files'
         @div class: 'remote-edit-file-scroller',  =>
           @div class: 'remote-edit-treeview-list', =>
             @ol class: 'list-entries full-menu focusable-panel', tabindex: -1, outlet: 'treeUI'
@@ -43,6 +41,8 @@ module.exports =
       $('.remote-edit-opened-tree').css({'max-height': ''})
       $('.remote-edit-opened-tree').css({'flex-grow': 1, 'flex-basis': '0%'})
 
+    getHeight: =>
+      return $('.remote-edit-opened-tree').outerHeight()
 
     splitPathParts: (localFile) ->
       # explode paths

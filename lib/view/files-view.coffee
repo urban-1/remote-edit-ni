@@ -23,6 +23,10 @@ module.exports =
 
     @content: ->
       @div class: 'remote-edit-tree-views remote-edit-resizer tool-panel', 'data-show-on-right-side': false, =>
+        @div class: 'tab-bar', =>
+          @div class: 'tab active', =>
+            @div class: 'title', 'Remote edit'
+            @div class: 'close-icon', click: 'hide'
         @subview 'treeView', new MiniTreeView()
         @div class: 'remote-edit-panel-toggle', =>
           @span class: 'before  icon-chevron-up'
@@ -366,7 +370,8 @@ module.exports =
       $(document).off('mousemove', @resizeTreeView)
       $(document).off('mouseup', @resizeStopped)
 
-    resizeVerticalStarted: =>
+    resizeVerticalStarted: (e) =>
+      @resizeVerticalOffset = e.clientY - @treeView.getHeight()
       $(document).on('mousemove', @resizeVerticalTreeView)
       $(document).on('mouseup', @resizeVerticalStopped)
 
@@ -376,8 +381,7 @@ module.exports =
 
     resizeVerticalTreeView: (e) =>
       return @resizeVerticalStopped() unless e.which is 1
-      console.log("Setting height to " + e.offsetY )
-      @treeView.setHeight(e.pageY)
+      @treeView.setHeight(e.clientY - @resizeVerticalOffset)
 
     resizeTreeView: ({pageX, which}) =>
       return @resizeStopped() unless which is 1
