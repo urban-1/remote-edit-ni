@@ -131,6 +131,49 @@
   height: 100%;
 }
 
+
+
+.list-tree:focus li.selected::before {
+    background-color: #4d78cc;
+}
+
+.remote-edit-tree-views .list-tree {
+  flex-grow: 1;
+  flex-shrink: 0;
+  isolation: isolate;
+  min-width: -webkit-min-content;
+  //min-height: 90%;
+  padding-left: @component-icon-padding;
+  padding-right: @component-padding;
+
+  .header {
+    position: relative;
+  }
+  .list-item {
+    position: relative;
+    >div {
+      display: inline-block;
+    }
+  }
+  .text-subtle {
+    line-height: 16px;
+    padding-bottom: 3px;
+    margin-top: -3px;
+    padding-left: 7px;
+  }
+  .entry {
+    .name {
+      pointer-events: none;
+    }
+
+    // // This fixes #110, see that issue for more details
+    // &:before {
+    //   content: '';
+    //   position: absolute;
+    // }
+  }
+}
+
 .platform-win32 {
   .remote-edit-resizer {
     .remote-edit-resize-handle {
@@ -159,13 +202,14 @@
         padding: 0;
         list-style: none;
         cursor: default;
+        position: static;
     }
 
     // First level items...
     .list-entries li {
         padding-left: 8px;
         white-space: nowrap;
-        position: relative;
+        position: static;
     }
 
     // All other level folders
@@ -200,6 +244,7 @@
         width: 12px;
         height: 12px;
         content: "\f0a3";
+        display: inline-block;
     }
 
     // Collapsed folder
@@ -210,7 +255,8 @@
         content: "\f078";
     }
 
-    // // TODO: FIXME: The following never worked... weird behaviour
+    // NOTE: :'( Cannot figure this one out
+    // // highlight on select
     // .list-entries li::before {
     //     content: '';
     //     position: absolute;

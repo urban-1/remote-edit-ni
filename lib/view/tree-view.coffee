@@ -304,7 +304,6 @@ module.exports =
           folder = node.meta.remoteFile.dirName
           file = node.meta.remoteFile.path
         else
-
           folder = "/"
           if node.isFolder
             folder = @rightClickNode.data('node-path')
@@ -324,13 +323,7 @@ module.exports =
           host = tmpNode.meta.host
 
         if folder
-          @filesView.setHost(host)
-
-          # Select the file after the connection
-          @filesView.openDirectory(folder, () =>
-            if file
-              @filesView.selectItemByPath(file)
-          )
+          @filesView.revealFile(host, folder, file)
 
 
 

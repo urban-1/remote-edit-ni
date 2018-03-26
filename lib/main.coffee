@@ -101,6 +101,9 @@ module.exports =
 
     atom.commands.add('atom-workspace', 'remote-edit:show-open-files', => @showOpenFiles())
     atom.commands.add('atom-workspace', 'remote-edit:browse', => @browse())
+    # Browse more is a slight variation of remote-edit:reveal-in-browser
+    # The only difference is that if the current tab is not RemoteEditEditor
+    # it will open hosts-view
     atom.commands.add('atom-workspace', 'remote-edit:browse-more', => @browseMore())
     atom.commands.add('atom-workspace', 'remote-edit:new-sftp-host', => @newHost("sftp"))
     atom.commands.add('atom-workspace', 'remote-edit:new-ftp-host', => @newHost("ftp"))
@@ -130,9 +133,7 @@ module.exports =
   browseMore: ->
     editor = atom.workspace.getActiveTextEditor()
     if editor instanceof RemoteEditEditor
-      remdir = editor.localFile.remoteFile.dirName
-      atom.notifications.addSuccess("Re-opening: #{remdir} on #{editor.host.hostname}")
-      @createFilesView().setHost(editor.host, remdir)
+      @createFilesView().revealCurrentFile()
     else
       @browse()
 

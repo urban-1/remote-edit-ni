@@ -101,6 +101,7 @@ module.exports =
       @connection?.end()
       callback?(null)
 
+
     connect: (callback, connectionOptions = {}) ->
       @emitter.emit 'info', {message: "Connecting to sftp://#{@username}@#{@hostname}:#{@port}", type: 'info'}
       async.waterfall([

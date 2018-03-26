@@ -45,8 +45,8 @@ module.exports =
           # @tag 'atom-text-editor', 'mini': true, class: 'native-key-bindings', outlet: 'filter'
           # Gettext does not exist cause there is no model behind this...
           @input class: 'remote-edit-filter-text native-key-bindings', tabindex: 1, outlet: 'filter'
-          @div class: 'remote-edit-file-scroller', =>
-            @ol class: 'list-tree full-menu focusable-panel', tabindex: -1, outlet: 'list'
+          @div class: 'remote-edit-file-scroller', outlet: 'scroller', =>
+            @ol class: 'list-tree full-menu focusable-panel', tabindex: 1, outlet: 'list'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
     doFilter: (e) ->
@@ -90,7 +90,7 @@ module.exports =
         else
           @treeView.addClass('hidden')
 
-    connect: (connectionOptions = {}, connect_path = false) ->
+    connect: (connectionOptions = {}, connect_path = false, callback) ->
       console.debug "connect(): re-connecting (FilesView::connect) to path=#{connect_path}"
       dir = upath.normalize(if connect_path then connect_path else if atom.config.get('remote-edit-ni.rememberLastOpenDirectory') and @host.lastOpenDirectory? then @host.lastOpenDirectory else @host.directory)
       async.waterfall([
@@ -118,7 +118,7 @@ module.exports =
           else
             callback(null)
         (callback) =>
-          @populate(dir, callback)
+          @openDirectory(dir, callback)
       ], (err, result) =>
         if err?
           console.error err
@@ -141,6 +141,9 @@ module.exports =
             )
           else
             @setError(err)
+
+        @list.focus()
+        callback?(null)
       )
 
     getFilterKey: ->
@@ -179,7 +182,9 @@ module.exports =
           if item.name != '..'
             @span class: 'text-subtle text-smaller', "S: #{item.size}, M: #{item.lastModified}, P: #{item.permissions}"
 
-    populate: (dir, callback) ->
+    openDirectory: (dir, callback) ->
+      dir = upath.normalize(dir)
+      @host.invalidate()
       async.waterfall([
         (callback) =>
           if !@host.isConnected()
@@ -222,12 +227,32 @@ module.exports =
       @host.lastOpenDirectory = @path
       @server_folder.html(@path)
 
-    setHost: (host, connect_path = false) ->
-      if host != @host
-        @host?.close()
-        @host = host
-      @connect({}, connect_path)
+    # This is the "main" entry point for external components to interact with
+    # the left side panel
+    setHost: (host, connect_path = false, callback) ->
+      # Ensure the panel is visible
       @show()
+
+      # Avoid re-connecting if the hostname is the same
+      if host.hostname == @host?.hostname
+        if connect_path
+          @openDirectory(connect_path, callback)
+        else
+          callback?(null)
+
+        @list.focus()
+        return
+
+      @host?.close()
+      @host = host
+
+      # Extend the callers' callback with some basic post-connect functions
+      @connect({}, connect_path, () =>
+        @list.focus()
+        @selectInitialItem()
+        callback?()
+      )
+
 
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
@@ -277,11 +302,7 @@ module.exports =
           if filePane
             filePaneItem = filePane.itemForURI(uri)
             filePane.activateItem(filePaneItem)
-            # confirmResult = atom.confirm
-            #   message: 'Reopen this file?'
-            #   detailedMessage: 'Unsaved data will be lost.'
-            #   buttons: ['Yes','No']
-            # confirmResult: Yes = 0, No = 1, Close button = 1
+
             confirmResult = ElectronDialog.showMessageBox({
                     title: "File Already Opened...",
                     message: "Reopen this file? Unsaved changes will be lost",
@@ -298,7 +319,6 @@ module.exports =
             localFile = new LocalFile(savePath, file, dtime, @host)
             @host.getFile(localFile, callback)
       ], (err, localFile) =>
-        @deselect()
         if err?
           @setError(err)
           console.error err
@@ -318,24 +338,9 @@ module.exports =
           @treeView.addFile(localFile)
       )
 
-    openDirectory: (dir, callback) =>
-      dir = upath.normalize(dir)
-      async.waterfall([
-        (callback) =>
-          if !@host.isConnected()
-            @setMessage("Connecting...")
-            @host.connect(callback)
-          else
-            callback(null)
-        (callback) =>
-          @host.invalidate()
-          @populate(dir, callback)
-      ], (err) ->
-        callback?(err)
-      )
-
     #
     # Called on event listener to handle all actions of the file list
+    # TODO: This is async, add callback support if/when needed
     #
     confirmed: (item) ->
       async.waterfall([
@@ -349,10 +354,10 @@ module.exports =
             @openFile(item)
           else if item.isDir
             @host.invalidate()
-            @populate(item.path)
+            @openDirectory(item.path, () => @selectInitialItem())
           else if item.isLink
             if atom.config.get('remote-edit-ni.followLinks')
-              @populate(item.path)
+              @openDirectory(item.path, () => @selectInitialItem())
             else
               @openFile(item)
       ], (err, savePath) ->
@@ -392,8 +397,58 @@ module.exports =
       @width(1) # Shrink to measure the minimum width of list
       @width(Math.max(@list.outerWidth(), @treeView.treeUI.outerWidth()+10))
 
+    scrollToView: (element, parent) ->
+        # element = $(element);
+        # parent = $(parent);
+
+        offset = element.offset().top - parent.offset().top + parent.scrollTop();
+        height = element.innerHeight();
+        offset_end = offset + height;
+
+        visible_area_start = parent.scrollTop();
+        visible_area_end = visible_area_start + parent.innerHeight();
+
+        if (offset < visible_area_start)
+             parent.scrollTop(offset);
+             return false;
+        else if (offset_end > visible_area_end)
+            parent.scrollTop(parent.scrollTop() + offset_end - visible_area_end + 10);
+            return false;
+
+        return true;
+
+
+    listSelectNext: =>
+      item = @getSelectedItem()
+      if item.next('li').length == 0
+        return
+
+      @deselect()
+      item.next('li').addClass('selected').data('select-list-item')
+      @scrollToView(@getSelectedItem(), @scroller)
+
+    listSelectPrev: =>
+      item = @getSelectedItem()
+      if item.prev('li').length == 0
+        return
+
+      @deselect()
+      item.prev('li').addClass('selected').data('select-list-item')
+      @scrollToView(@getSelectedItem(), @scroller)
+
+    listEnter: =>
+      item = @getSelectedItem()
+      if !item
+        return
+      @confirmed(item.data('select-list-item'))
+      @list.focus()
+
+
+
     listenForEvents: ->
-      @list.on 'mousedown', 'li', (e) =>
+
+      @list.on 'dblclick', 'li', (e) =>
+        @list.focus()
         if $(e.target).closest('li').hasClass('selected')
           false
         @deselect()
@@ -404,6 +459,15 @@ module.exports =
           false
         else if e.which == 3
           false
+
+      @list.on 'mousedown', 'li', (e) =>
+        @list.focus()
+        if $(e.target).closest('li').hasClass('selected')
+          false
+        @deselect()
+        @selectedItem = $(e.target).closest('li').addClass('selected').data('select-list-item')
+        e.preventDefault()
+        false
 
       @on 'dblclick', '.remote-edit-resize-handle', =>
         @resizeToFitContent()
@@ -445,16 +509,32 @@ module.exports =
         @doFilter(e)
 
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:open', =>
+        # FIXME: This does not return item's data
         item = @getSelectedItem()
         if item.isFile
           @openFile(item)
         else if item.isDir
           @openDirectory(item)
 
+      # Files-view Commands
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-select-next', => @listSelectNext()
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-select-prev', => @listSelectPrev()
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-enter', => @listEnter()
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:previous-folder', =>
         if @path.length > 1
-          @openDirectory(@path + path.sep + '..')
+          # Open directory and focus on the list
+          @openDirectory(@path + path.sep + '..',
+            () =>
+              @selectInitialItem()
+              @list.focus()
+          )
 
+
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-focus', =>
+        @selectInitialItem()
+        @list.focus()
+
+      # Remote-edit Commands
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:set-permissions', => @setPermissions()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:create-folder', => @createFolder()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:create-file', => @createFile()
@@ -463,10 +543,49 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:remove-folder-file', => @deleteFolderFile()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:cut-folder-file', => @copycutFolderFile(true)
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:paste-folder-file', => @pasteFolderFile()
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:reveal-in-browser', => @revealCurrentFile()
+
+    # Reveal the current tab/file in browser ONLY if it is a remote RemoteEditEditor
+    revealCurrentFile: () ->
+        editor = atom.workspace.getActiveTextEditor()
+        localFile = editor?.localFile
+        if !localFile
+            return
+
+        # Show this file
+        @revealFile(
+            editor?.host,
+            localFile.remoteFile.dirName,
+            localFile.remoteFile.path
+        )
+
+    # Reveal a file in the browser, given the host, the folder path and the
+    # file path. This can be called with file=null to change folder.
+    revealFile: (host, folder, file) =>
+      if file
+        @setHost(host, folder, () => @selectItemByPath(file))
+      else
+        @setHost(host, folder, () => @selectInitialItem())
+
+
+
+    # Default selection on focus or on enter directory
+    selectInitialItem: () =>
+      # Refuse to select if something already selected
+      if @getSelectedItem().length
+        return
+
+      # Ensure we are not in a empty directory
+      if @list.children().length > 1
+        @list.children().first().next().addClass('selected')
+      else
+        @list.children().first().addClass('selected')
 
     selectItemByPath: (path) ->
       @deselect()
-      $('li.list-item span[data-path="'+path+'"]').closest('li').addClass('selected')
+      item = $('li.list-item span[data-path="'+path+'"]').closest('li')
+      item.addClass('selected')
+      @scrollToView(item, @scroller)
 
     setItems: (@items=[]) ->
       @message.hide()
@@ -616,7 +735,10 @@ module.exports =
         )
 
     deselect: () ->
-        @list.find('li.selected').removeClass('selected');
+      @list.find('li.selected').removeClass('selected');
+
+    getSelectedItem: ->
+      return @list.find('li.selected')
 
     setError: (message='') ->
       @emitter.emit 'info', {message: message, type: 'error'}
