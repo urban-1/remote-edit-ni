@@ -20,11 +20,29 @@ module.exports =
 
     @content: ->
       @div class: 'remote-edit-opened-tree', =>
-        #@div class: 'remote-edit-treeview-header', =>
-        @span class: 'remote-edit-treeview-header inline-block', 'Open Files'
         @div class: 'remote-edit-file-scroller',  =>
           @div class: 'remote-edit-treeview-list', =>
             @ol class: 'list-entries full-menu focusable-panel', tabindex: -1, outlet: 'treeUI'
+
+
+    # Set the height of this view. Usually this view is flex with 100% height
+    # sharing space with browser. Once you call this function, flex is removed
+    # and explicit height is set (in px)
+    setHeight: (height) =>
+      height = height + ""
+      if height.indexOf("px") == -1
+        height += "px"
+      $('.remote-edit-opened-tree').css({'max-height': height})
+      $('.remote-edit-opened-tree').css({'flex-grow': 0, 'flex-basis': 'auto'})
+
+    # This method will reset any height settings and put the component back to
+    # flex mode
+    resetHeight: (height) =>
+      $('.remote-edit-opened-tree').css({'max-height': ''})
+      $('.remote-edit-opened-tree').css({'flex-grow': 1, 'flex-basis': '0%'})
+
+    getHeight: =>
+      return $('.remote-edit-opened-tree').outerHeight()
 
     splitPathParts: (localFile) ->
       # explode paths
