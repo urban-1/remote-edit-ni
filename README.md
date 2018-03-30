@@ -21,6 +21,10 @@ Show/hide remote-edit panel
 - <kbd>Alt+r o</kbd>/<kbd>&#8984;+r o</kbd> -
 Show open (downloaded) remote files.
 
+- <kbd>Alt+r f</kbd> -
+Give focus to the remote-edit file browser. This allows you to navigate with
+keyboard (up/down/enter/backspace)
+
 
 ### shortcuts within _host selection_ dialog
 
@@ -42,12 +46,7 @@ Delete hosts or downloaded files. Usable when selecting hosts (_Browse_) or open
 * Check keybindings. They are now in the <kbd>Alt+r</kbd> range
 * Keyboard support in files-view, eg:
   * focus when opening files
-  * up/down to select files
-  * enter to open or enter directory
-  * backspace to parent directory
   * escape to close files-view
-  * mouse: single click selects file/dir
-  * mouse: double click opens file/dir
 
 
 ## Credits

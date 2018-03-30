@@ -58,9 +58,9 @@ module.exports =
         @label 'Alias:'
         @subview 'alias', new TextEditorView(mini: true)
 
-        @div class: 'block', outlet: 'buttonBlock', =>
-          @button class: 'inline-block btn pull-right', outlet: 'cancelButton', click: 'cancel', 'Cancel'
-          @button class: 'inline-block btn pull-right', outlet: 'saveButton', click: 'confirm','Save'
+        @div class: 'text-right', outlet: 'buttonBlock', =>
+          @button class: 'inline-block btn', outlet: 'saveButton', click: 'confirm','Save'
+          @button class: 'inline-block btn', outlet: 'cancelButton', click: 'cancel', 'Cancel'
 
         @div class: 'clear'
 
