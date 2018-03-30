@@ -508,6 +508,7 @@ module.exports =
       @filter.on "keyup", (e) =>
         @doFilter(e)
 
+      # Files-view Commands
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:open', =>
         # FIXME: This does not return item's data
         item = @getSelectedItem()
@@ -515,8 +516,6 @@ module.exports =
           @openFile(item)
         else if item.isDir
           @openDirectory(item)
-
-      # Files-view Commands
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-select-next', => @listSelectNext()
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-select-prev', => @listSelectPrev()
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-enter', => @listEnter()
@@ -528,11 +527,10 @@ module.exports =
               @selectInitialItem()
               @list.focus()
           )
-
-
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-focus', =>
         @selectInitialItem()
         @list.focus()
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:hide', => @hide()
 
       # Remote-edit Commands
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:set-permissions', => @setPermissions()

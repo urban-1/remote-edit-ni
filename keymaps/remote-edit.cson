@@ -43,3 +43,4 @@
   'up': 'filesview:list-select-prev'
   'down': 'filesview:list-select-next'
   'enter': 'filesview:list-enter'
+  'escape': 'filesview:hide'
