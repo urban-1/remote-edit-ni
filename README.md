@@ -2,9 +2,25 @@
 
 [![Build Status](https://travis-ci.org/newinnovations/remote-edit-ni.svg?branch=master)](https://travis-ci.org/newinnovations/remote-edit-ni)
 
-Remote-edit-ni is a continuation of the remote-edit package. It is compatible with the latest version of atom (1.25.x at the time of writing).
+Remote-edit-ni is a continuation of the remote-edit package. It is compatible with the latest version of atom (1.25.x at the time of writing) and contains a lot of new features.
 
-This version integrates the work of @urban-1 and @newinnovations.
+This version integrates the work of Andreas Bontozoglou (@urban-1) and Martin van der Werff (@newinnovations).
+
+## Getting started
+
+Use <kbd>Alt+r b</kbd> (or <kbd>&#8984;+r b</kbd> for Mac) to browse the list of configured hosts. Which will be empty at first.
+
+In this view press <kbd>shift+s</kbd> to add your SFTP/SSH host or use <kbd>shift+f</kbd> to add your FTP host.
+
+Then press <kbd>Alt+r b</kbd> / <kbd>&#8984;+r b</kbd> again and select your host. Remote edit will connect to your host and show the list of remote files in a side window (pane). Navigation should be pretty straightforward. Double click to open files or directories or use your keyboard.
+
+## Please note / caveats
+
+Files are stored locally in a temporary location and copied to the remote host when saved. Files remain stored in this temporary location when you close atom. If these temporary files are not removed you can resume work directly when you restart atom. Otherwise files have to be re-opened again and if you had unsaved changes they got lost. Typically these temporary files do not survive a reboot. Make sure you save remote files before you exit atom.
+
+There is currently no check to see whether the file was changed on the remote host. Saving will overwrite any changes on the remote server.
+
+All information is stored in cleartext on disk. This includes passwords and passphrases. Please use only your ssh-agent for authentication so no sensitive information needs to be stored by remote-edit.
 
 
 ## Main keyboard shortcuts
@@ -15,7 +31,7 @@ Select remote host and start browsing in configured directory (or last directory
 - <kbd>Alt+r m</kbd> / <kbd>&#8984;+r m</kbd> -
 Browse remote host in directory of the current editor tab.
 
--   <kbd>Alt+r v</kbd> / <kbd>&#8984;+r v</kbd> -
+- <kbd>Alt+r v</kbd> / <kbd>&#8984;+r v</kbd> -
 Show/hide remote-edit panel
 
 - <kbd>Alt+r o</kbd> / <kbd>&#8984;+r o</kbd> -
@@ -41,6 +57,11 @@ Edit hosts.
 Delete hosts or downloaded files. Usable when selecting hosts (_Browse_) or open files (_Show open remote files_).
 
 
+## TODO
+
+* Consider another location for the temporary files
+* Enumerate the open file list when atom is launched
+
 ## Credits
-This is a fork of a project created by Sverre Aleksandersen (sveale). It was
+This is a fork of a project created by Sverre Aleksandersen (@sveale). It was
 forked to implement bug fixes and several new features.

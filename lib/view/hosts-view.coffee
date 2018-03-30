@@ -81,6 +81,9 @@ module.exports =
       filesView = module.parent.exports.createFilesView()
       filesView.setHost(item)
 
+    getEmptyMessage: ->
+      return "Welcome to Remote Edit. No hosts: press shift+a to add SSH/SFTP host or shift+f to add FTP host."
+
     listenForEvents: ->
       @disposables.add atom.commands.add 'atom-workspace', 'hostview:delete', =>
         item = @getSelectedItem()
