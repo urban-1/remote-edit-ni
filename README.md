@@ -21,7 +21,7 @@ Show/hide remote-edit panel
 - <kbd>Alt+r o</kbd>/<kbd>&#8984;+r o</kbd> -
 Show open (downloaded) remote files.
 
-- <kbd>Alt+r f</kbd> -
+- <kbd>Alt+r f</kbd><kbd>&#8984;+r f</kbd> -
 Give focus to the remote-edit file browser. This allows you to navigate with
 keyboard (up/down/enter/backspace)
 
