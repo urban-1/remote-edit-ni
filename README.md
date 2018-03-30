@@ -9,16 +9,16 @@ This version integrates the work of @urban-1 and @newinnovations.
 
 ## Main keyboard shortcuts
 
-- <kbd>Alt+r b</kbd> -
+- <kbd>Alt+r b</kbd>/<kbd>&#8984;+r b</kbd> -
 Select remote host and start browsing in / or last directory (when selected in preferences).
 
-- <kbd>Alt+r m</kbd> -
+- <kbd>Alt+r m</kbd>/<kbd>&#8984;+r m</kbd> -
 Browse remote host in directory of the current editor tab.
 
--   <kbd>Alt+r v</kbd> -
+-   <kbd>Alt+r v</kbd>/<kbd>&#8984;+r v</kbd> -
 Show/hide remote-edit panel
 
-- <kbd>Alt+r o</kbd> -
+- <kbd>Alt+r o</kbd>/<kbd>&#8984;+r o</kbd> -
 Show open (downloaded) remote files.
 
 
