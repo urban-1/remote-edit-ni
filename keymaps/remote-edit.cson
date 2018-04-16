@@ -13,7 +13,7 @@
   'cmd-r v': 'remote-edit:toggle-files-view'
   'cmd-r f': 'filesview:list-focus'
   'cmd-r m': 'remote-edit:browse-more'
-  'cmd-r d': 'remote-edit:disconnect'
+  'cmd-r d': 'remote-edit:close-all-connections'
 
 '.platform-win32, .platform-linux':
   'alt-r b': 'remote-edit:browse'
@@ -21,7 +21,7 @@
   'alt-r v': 'remote-edit:toggle-files-view'
   'alt-r f': 'filesview:list-focus'
   'alt-r m': 'remote-edit:browse-more'
-  'alt-r d': 'remote-edit:disconnect'
+  'alt-r d': 'remote-edit:close-all-connections'
 
 '.open-files-view.select-list':
   'shift-d': 'openfilesview:delete'
