@@ -33,7 +33,10 @@ module.exports =
           default: true
         closeOnUpload:
           title: 'Close connection after every upload'
-          description: 'When enabled, it will not persist upload connection. Only effective when "Upload on save" is checked'
+          description: """When enabled, it will not persist upload connection.
+                        Only effective when "Upload on save" is checked. Enabling
+                        this will minimize the number of connections to the server
+                        but will introduce the overhead of reconnecting on every save"""
           type: 'boolean'
           default: false
     notifications:
