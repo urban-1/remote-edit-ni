@@ -23,11 +23,19 @@ module.exports =
       title: 'Show hidden files'
       type: 'boolean'
       default: false
-    uploadOnSave:
-      title: 'Upload on save'
-      description: 'When enabled, remote files will be automatically uploaded when saved'
-      type: 'boolean'
-      default: true
+    uploadOptions:
+      type: 'object'
+      properties:
+        uploadOnSave:
+          title: 'Upload on save'
+          description: 'When enabled, remote files will be automatically uploaded when saved'
+          type: 'boolean'
+          default: true
+        closeOnUpload:
+          title: 'Close connection after every upload'
+          description: 'When enabled, it will not persist upload connection. Only effective when "Upload on save" is checked'
+          type: 'boolean'
+          default: false
     notifications:
       title: 'Display notifications'
       type: 'boolean'
