@@ -99,6 +99,7 @@ module.exports =
 
     close: (callback) ->
       @connection?.end()
+      @connection = null
       callback?(null)
 
 
