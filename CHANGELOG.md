@@ -1,3 +1,5 @@
+# DELETE ME - THIS FILE IS OUTDATED
+
 ## 3.3.0
 
 * Support for Atom 1.23.x - FULL CREDIT TO remote-edit-NI (newinnovations)
