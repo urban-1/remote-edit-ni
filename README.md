@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/newinnovations/remote-edit-ni.svg?branch=master)](https://travis-ci.org/newinnovations/remote-edit-ni)
 
-Remote-edit-ni is a continuation of the remote-edit package. It is compatible with the latest version of atom (1.25.x at the time of writing) and contains a lot of new features.
+Remote-edit-ni is a continuation of the abandoned remote-edit package. It is compatible with the latest version of atom (1.26.x at the time of writing) and contains a lot of new features.
 
 This version integrates the work of Andreas Bontozoglou (@urban-1) and Martin van der Werff (@newinnovations).
 
@@ -40,6 +40,9 @@ Show open (downloaded) remote files.
 - <kbd>Alt+r f</kbd> / <kbd>&#8984;+r f</kbd> -
 Give focus to the remote-edit file browser. This allows you to navigate with
 keyboard (up/down/enter/backspace/escape)
+
+- <kbd>Alt+r d</kbd> / <kbd>&#8984;+r d</kbd> -
+Disconnect all open server connections. Server connections are normally kept open to improve save and browse performance.
 
 
 ### shortcuts within _host selection_ dialog
