@@ -542,6 +542,17 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:cut-folder-file', => @copycutFolderFile(true)
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:paste-folder-file', => @pasteFolderFile()
       @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:reveal-in-browser', => @revealCurrentFile()
+      @disposables.add atom.commands.add 'atom-workspace', 'remote-edit:close-all-connections', => @closeAllConnections()
+
+    # Close all connections of remoteEdit, including any open tabs
+    closeAllConnections: () =>
+      for editor in atom.workspace.getTextEditors()
+        if editor.host
+          editor.host.close()
+
+      # Now close the files view connection (ours)
+      @host?.close()
+      @hide()
 
     # Reveal the current tab/file in browser ONLY if it is a remote RemoteEditEditor
     revealCurrentFile: () ->

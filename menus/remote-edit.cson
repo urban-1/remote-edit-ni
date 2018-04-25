@@ -10,6 +10,7 @@
         { 'label': 'Add New Host (sftp)', 'command': 'remote-edit:new-sftp-host' }
         { 'label': 'Add New Host (ftp)', 'command': 'remote-edit:new-ftp-host' }
         { 'label': 'Toggle files view', 'command': 'remote-edit:toggle-files-view' }
+        { 'label': 'Close all connections', 'command': 'remote-edit:close-all-connections' }
     ]
     ]
   }
