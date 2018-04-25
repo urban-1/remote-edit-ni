@@ -304,10 +304,16 @@ atom-text-editor.editor .password-lines .line {
     left: 0px;
     top: 0px;
     color: @text-color !important;
+    background-color: @input-background-color !important;
   }
+
   span.text {
     color:rgba(0, 0, 0, 0);
   }
+}
+
+atom-text-editor.editor.is-focused .password-lines .line span.syntax--text:before {
+    background-color: @app-background-color !important;
 }
 
 .remote-edit-info {
