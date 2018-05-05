@@ -234,7 +234,7 @@ module.exports =
       @show()
 
       # Avoid re-connecting if the hostname is the same
-      if host.hostname == @host?.hostname
+      if @host?.equals(host)
         if connect_path
           @openDirectory(connect_path, callback)
         else
