@@ -151,7 +151,10 @@ module.exports =
             # console.log(prompts)
             async.waterfall([
               (callback) ->
-                passwordDialog = new Dialog({prompt: "Enter passcode or passphrase"})
+                passwordDialog = new Dialog({
+                  prompt: "Keyboard Interactive Auth",
+                  detail: prompts[0].prompt.replace(/(?:\r\n|\r|\n)/g, '<br>')
+                })
                 passwordDialog.toggle(callback)
             ], (err, result) =>
               if err?
