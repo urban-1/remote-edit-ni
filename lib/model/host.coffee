@@ -38,6 +38,13 @@ module.exports =
       toReturn = "#{toReturn} #{@port}" if searchKeySettings["port"]
       return toReturn
 
+    # Compare this host to the given one and return true if it is the same
+    # host/configuration. Atm checking hostname, username and port
+    equals: (host) ->
+      return (@hostname == host.hostname && \
+              @username == host.username && \
+              @port == host.port)
+
     getServiceAccount: ->
       "#{@username}@#{@hostname}:#{@port}"
 
