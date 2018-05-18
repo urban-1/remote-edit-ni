@@ -1,6 +1,7 @@
 Host = require './host'
 RemoteFile = require './remote-file'
 LocalFile = require './local-file'
+Dialog = require '../view/dialog'
 
 fs = require 'fs-plus'
 ssh2 = require 'ssh2'
@@ -140,6 +141,22 @@ module.exports =
           @connection.on 'ready', =>
             @emitter.emit 'info', {message: "Successfully connected to sftp://#{@username}@#{@hostname}:#{@port}", type: 'success'}
             callback(null)
+
+          # Here we break MV paradigm... but is the nature of the job...
+          @connection.on 'keyboard-interactive', (name, instructions, instructionsLang, prompts, finish) ->
+            console.log('Connection :: keyboard-interactive')
+            console.log(prompts)
+            async.waterfall([
+              (callback) ->
+                passwordDialog = new Dialog({prompt: "Enter passcode or passphrase"})
+                passwordDialog.toggle(callback)
+            ], (err, result) =>
+              if err?
+                callback?(err)
+              else
+                finish([result])
+            )
+
           @connection.connect(@getConnectionString(connectionOptions))
       ], (err) ->
         callback?(err)
