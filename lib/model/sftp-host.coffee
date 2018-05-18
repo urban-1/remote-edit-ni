@@ -100,21 +100,24 @@ module.exports =
     # Overridden methods
     getConnectionString: (connectionOptions) ->
       if @useAgent
-        return _.extend(@getConnectionStringUsingAgent(), connectionOptions)
-      else if @usePrivateKey
-        return _.extend(@getConnectionStringUsingKey(), connectionOptions)
-      else if @usePassword
-        return _.extend(@getConnectionStringUsingPassword(), connectionOptions)
-      else if @useKeyboard
-        return _.extend(@getConnectionStringUsingKbdInteractive(), connectionOptions)
-      else
-        throw new Error("No valid connection method is set for SftpHost!")
+        connectionOptions = _.extend(@getConnectionStringUsingAgent(), connectionOptions)
+      if @usePrivateKey
+        connectionOptions = _.extend(@getConnectionStringUsingKey(), connectionOptions)
+      if @usePassword
+        connectionOptions = _.extend(@getConnectionStringUsingPassword(), connectionOptions)
+      if @useKeyboard
+        connectionOptions = _.extend(@getConnectionStringUsingKbdInteractive(), connectionOptions)
+
+      return connectionOptions
 
     close: (callback) ->
       @connection?.end()
       @connection = null
       callback?(null)
 
+    # Receiver for debug messages from ssh2 lib
+    _debugSsh: (str) ->
+      console.debug(str)
 
     connect: (callback, connectionOptions = {}) ->
       @emitter.emit 'info', {message: "Connecting to sftp://#{@username}@#{@hostname}:#{@port}", type: 'info'}
@@ -144,8 +147,8 @@ module.exports =
 
           # Here we break MV paradigm... but is the nature of the job...
           @connection.on 'keyboard-interactive', (name, instructions, instructionsLang, prompts, finish) ->
-            console.log('Connection :: keyboard-interactive')
-            console.log(prompts)
+            # console.log('Connection :: keyboard-interactive')
+            # console.log(prompts)
             async.waterfall([
               (callback) ->
                 passwordDialog = new Dialog({prompt: "Enter passcode or passphrase"})
@@ -157,6 +160,7 @@ module.exports =
                 finish([result])
             )
 
+          # GHo do this...
           @connection.connect(@getConnectionString(connectionOptions))
       ], (err) ->
         callback?(err)

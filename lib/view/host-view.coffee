@@ -145,10 +145,7 @@ module.exports =
       @password.focus()
 
     kbdInteractiveButtonClick: ->
-      @authenticationButtonsBlock.find('.btn').toggleClass('selected', false)
       @kbdInteractiveButton.toggleClass('selected', true)
-      @privateKeyBlock.hide()
-      @passwordBlock.hide()
 
 
 
