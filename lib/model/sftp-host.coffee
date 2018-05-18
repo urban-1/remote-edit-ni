@@ -28,12 +28,22 @@ module.exports =
     connection: undefined
     protocol: "sftp"
 
-    constructor: (@alias = null, @hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath, @lastOpenDirectory) ->
+    constructor: (@alias = null, @hostname, @directory, @username, @port = "22", @localFiles = [], @useKeyboard = false, @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath, @lastOpenDirectory) ->
       # Default to /home/<username> which is the most common case...
       if @directory == ""
         @directory = "/home/#{@username}"
 
       super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword, @lastOpenDirectory)
+
+    getConnectionStringUsingKbdInteractive: ->
+      {
+        host: @hostname,
+        port: @port,
+        username: @username,
+        tryKeyboard: true
+      }
+
+
 
     getConnectionStringUsingAgent: ->
       connectionString =  {
@@ -94,6 +104,8 @@ module.exports =
         return _.extend(@getConnectionStringUsingKey(), connectionOptions)
       else if @usePassword
         return _.extend(@getConnectionStringUsingPassword(), connectionOptions)
+      else if @useKeyboard
+        return _.extend(@getConnectionStringUsingKbdInteractive(), connectionOptions)
       else
         throw new Error("No valid connection method is set for SftpHost!")
 
@@ -209,6 +221,7 @@ module.exports =
         @username
         @port
         localFiles: localFile.serialize() for localFile in @localFiles
+        @useKeyboard
         @useAgent
         @usePrivateKey
         @usePassword

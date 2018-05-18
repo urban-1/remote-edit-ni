@@ -39,14 +39,15 @@ module.exports =
             @button class: 'btn selected', outlet: 'userAgentButton', click: 'userAgentButtonClick', 'User agent'
             @button class: 'btn', outlet: 'privateKeyButton', click: 'privateKeyButtonClick', 'Private key'
             @button class: 'btn', outlet: 'passwordButton', click: 'passwordButtonClick', 'Password'
+            @button class: 'btn', outlet: 'kbdInteractiveButton', click: 'kbdInteractiveButtonClick', 'Keyboard Interactive'
 
-        @div class: 'block', outlet: 'passwordBlock', =>
+        @div class: 'block auth-details', outlet: 'passwordBlock', =>
           @label 'Password:'
           @subview 'password', new TextEditorView(mini: true)
           @label 'Passwords are by default stored in cleartext! Leave password field empty if you want to be prompted.', class: 'text-warning'
           @label 'Passwords can be saved to default system keychain by enabling option in settings.', class: 'text-warning'
 
-        @div class: 'block', outlet: 'privateKeyBlock', =>
+        @div class: 'block auth-details', outlet: 'privateKeyBlock', =>
           @label 'Private key path:'
           @subview 'privateKeyPath', new TextEditorView(mini: true)
           @label 'Private key passphrase:'
@@ -143,6 +144,13 @@ module.exports =
       @passwordBlock.show()
       @password.focus()
 
+    kbdInteractiveButtonClick: ->
+      @authenticationButtonsBlock.find('.btn').toggleClass('selected', false)
+      @kbdInteractiveButton.toggleClass('selected', true)
+      @privateKeyBlock.hide()
+      @passwordBlock.hide()
+
+
 
     confirm: ->
       @cancel()
@@ -157,6 +165,7 @@ module.exports =
         @host.useAgent = @userAgentButton.hasClass('selected')
         @host.usePrivateKey = @privateKeyButton.hasClass('selected')
         @host.usePassword = @passwordButton.hasClass('selected')
+        @host.useKeyboard = @kbdInteractiveButton.hasClass('selected')
 
         if @privateKeyButton.hasClass('selected')
           @host.privateKeyPath = fs.absolute(@privateKeyPath.getText())
@@ -226,6 +235,8 @@ module.exports =
           @privateKeyButton.click()
         else if @host.useAgent
           @userAgentButton.click()
+        else if @host.useKeyboard
+          @kbdInteractiveButton.click()
       else if (@host instanceof FtpHost)
         @authenticationButtonsBlock.hide()
         @passwordBlock.show()
