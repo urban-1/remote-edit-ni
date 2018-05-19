@@ -102,6 +102,7 @@ module.exports =
 
       # hack
       Passwd.maskPass(@password)
+      Passwd.maskPass(@privateKeyPassphrase)
 
     focusNext: =>
       elements = [@hostname, @directory, @username, @port, @alias, @saveButton]
@@ -145,7 +146,7 @@ module.exports =
       @password.focus()
 
     kbdInteractiveButtonClick: ->
-      @kbdInteractiveButton.toggleClass('selected', true)
+      @kbdInteractiveButton.toggleClass('selected')
 
 
 
