@@ -115,10 +115,6 @@ module.exports =
       @connection = null
       callback?(null)
 
-    # Receiver for debug messages from ssh2 lib
-    _debugSsh: (str) ->
-      console.debug(str)
-
     connect: (callback, connectionOptions = {}) ->
       @emitter.emit 'info', {message: "Connecting to sftp://#{@username}@#{@hostname}:#{@port}", type: 'info'}
       async.waterfall([
