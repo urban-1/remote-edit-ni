@@ -233,7 +233,7 @@ module.exports =
           @privateKeyButton.click()
         else if @host.useAgent
           @userAgentButton.click()
-        else if @host.useKeyboard
+        if @host.useKeyboard
           @kbdInteractiveButton.click()
       else if (@host instanceof FtpHost)
         @authenticationButtonsBlock.hide()
