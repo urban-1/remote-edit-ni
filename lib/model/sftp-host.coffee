@@ -159,7 +159,10 @@ module.exports =
                 finish([result])
             )
 
-          # GHo do this...
+          # Enable keepalive on the connection to keep firewalls and nat happy
+          connectionOptions = _.extend({keepaliveInterval: 10000, keepaliveCountMax: 6}, connectionOptions)
+
+          # Go do this...
           @connection.connect(@getConnectionString(connectionOptions))
       ], (err) ->
         callback?(err)
