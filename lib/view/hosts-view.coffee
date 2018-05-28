@@ -65,6 +65,8 @@ module.exports =
               authType = "key"
             else if item.useAgent
               authType = "agent"
+            else if item.useKeyboard
+              authType = "keyboard"
             @div class: "secondary-line", "Type: SFTP, Open files: #{item.localFiles.length}, Auth: " + authType
           else if item instanceof FtpHost
             authType = "not set"

@@ -7,10 +7,11 @@ class Dialog extends View
   @content: ({prompt, @type} = {}) ->
     @div class: 'dialog', =>
       @label prompt, class: 'icon', outlet: 'promptText'
+      @p class: 'hidden', outlet: 'promptDetail'
       @subview 'miniEditor', new TextEditorView(mini: true)
       @div class: 'error-message', outlet: 'errorMessage'
 
-  initialize: ({@prompt, iconClass, @type} = {}) ->
+  initialize: ({@prompt, iconClass, @type, @detail} = {}) ->
     @promptText.addClass(iconClass) if iconClass
 
     @disposables = new CompositeDisposable
@@ -25,6 +26,10 @@ class Dialog extends View
 
     if @type == "password"
       Passwd.maskPass(@miniEditor)
+
+    if @detail
+      @promptDetail.html(@detail)
+      @promptDetail.removeClass('hidden')
 
   onConfirm: (value) ->
     @callback?(undefined, value)

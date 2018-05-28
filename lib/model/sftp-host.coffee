@@ -1,6 +1,7 @@
 Host = require './host'
 RemoteFile = require './remote-file'
 LocalFile = require './local-file'
+Dialog = require '../view/dialog'
 
 fs = require 'fs-plus'
 ssh2 = require 'ssh2'
@@ -28,12 +29,22 @@ module.exports =
     connection: undefined
     protocol: "sftp"
 
-    constructor: (@alias = null, @hostname, @directory, @username, @port = "22", @localFiles = [], @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath, @lastOpenDirectory) ->
+    constructor: (@alias = null, @hostname, @directory, @username, @port = "22", @localFiles = [], @useKeyboard = false, @usePassword = false, @useAgent = true, @usePrivateKey = false, @password, @passphrase, @privateKeyPath, @lastOpenDirectory) ->
       # Default to /home/<username> which is the most common case...
       if @directory == ""
         @directory = "/home/#{@username}"
 
       super( @alias, @hostname, @directory, @username, @port, @localFiles, @usePassword, @lastOpenDirectory)
+
+    getConnectionStringUsingKbdInteractive: ->
+      {
+        host: @hostname,
+        port: @port,
+        username: @username,
+        tryKeyboard: true
+      }
+
+
 
     getConnectionStringUsingAgent: ->
       connectionString =  {
@@ -89,19 +100,20 @@ module.exports =
     # Overridden methods
     getConnectionString: (connectionOptions) ->
       if @useAgent
-        return _.extend(@getConnectionStringUsingAgent(), connectionOptions)
-      else if @usePrivateKey
-        return _.extend(@getConnectionStringUsingKey(), connectionOptions)
-      else if @usePassword
-        return _.extend(@getConnectionStringUsingPassword(), connectionOptions)
-      else
-        throw new Error("No valid connection method is set for SftpHost!")
+        connectionOptions = _.extend(@getConnectionStringUsingAgent(), connectionOptions)
+      if @usePrivateKey
+        connectionOptions = _.extend(@getConnectionStringUsingKey(), connectionOptions)
+      if @usePassword
+        connectionOptions = _.extend(@getConnectionStringUsingPassword(), connectionOptions)
+      if @useKeyboard
+        connectionOptions = _.extend(@getConnectionStringUsingKbdInteractive(), connectionOptions)
+
+      return connectionOptions
 
     close: (callback) ->
       @connection?.end()
       @connection = null
       callback?(null)
-
 
     connect: (callback, connectionOptions = {}) ->
       @emitter.emit 'info', {message: "Connecting to sftp://#{@username}@#{@hostname}:#{@port}", type: 'info'}
@@ -128,6 +140,26 @@ module.exports =
           @connection.on 'ready', =>
             @emitter.emit 'info', {message: "Successfully connected to sftp://#{@username}@#{@hostname}:#{@port}", type: 'success'}
             callback(null)
+
+          # Here we break MV paradigm... but is the nature of the job...
+          @connection.on 'keyboard-interactive', (name, instructions, instructionsLang, prompts, finish) ->
+            # console.log('Connection :: keyboard-interactive')
+            # console.log(prompts)
+            async.waterfall([
+              (callback) ->
+                passwordDialog = new Dialog({
+                  prompt: "Keyboard Interactive Auth",
+                  detail: prompts[0].prompt.replace(/(?:\r\n|\r|\n)/g, '<br>')
+                })
+                passwordDialog.toggle(callback)
+            ], (err, result) =>
+              if err?
+                callback?(err)
+              else
+                finish([result])
+            )
+
+          # GHo do this...
           @connection.connect(@getConnectionString(connectionOptions))
       ], (err) ->
         callback?(err)
@@ -209,6 +241,7 @@ module.exports =
         @username
         @port
         localFiles: localFile.serialize() for localFile in @localFiles
+        @useKeyboard
         @useAgent
         @usePrivateKey
         @usePassword
