@@ -224,7 +224,7 @@ module.exports =
           callback()
       ], (err) =>
         if err?
-          @emitter.emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'})
+          @emitter.emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}<br/>#{err}", type: 'error'})
           console.error err if err?
         else
           @emitter.emit('info', {message: "Successfully wrote remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'})
