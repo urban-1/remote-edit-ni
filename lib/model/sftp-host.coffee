@@ -122,24 +122,24 @@ module.exports =
           if @usePrivateKey
             fs.exists(@privateKeyPath, ((exists) =>
               if exists
-                callback(null)
+                callback?(null)
               else
                 @emitter.emit 'info', {message: "Private key does not exist!", type: 'error'}
-                callback(new Error("Private key does not exist"))
+                callback?(new Error("Private key does not exist"))
               )
             )
           else
-            callback(null)
+            callback?(null)
         (callback) =>
           console.debug "Real Host Connect..."
           @connection = new ssh2()
           @connection.on 'error', (err) =>
             @emitter.emit 'info', {message: "Error occured when connecting to sftp://#{@username}@#{@hostname}:#{@port}", type: 'error'}
-            @connection.end()
-            callback(err)
+            @connection?.end()
+            callback?(err)
           @connection.on 'ready', =>
             @emitter.emit 'info', {message: "Successfully connected to sftp://#{@username}@#{@hostname}:#{@port}", type: 'success'}
-            callback(null)
+            callback?(null)
 
           # Here we break MV paradigm... but is the nature of the job...
           @connection.on 'keyboard-interactive', (name, instructions, instructionsLang, prompts, finish) ->
@@ -182,13 +182,13 @@ module.exports =
         (files, callback) =>
           # ... and now we are done!
           @tmp_sftp.end()
-          async.map(files, ((file, callback) => callback(null, @createRemoteFileFromFile(path, file))), callback)
+          async.map(files, ((file, callback) => callback?(null, @createRemoteFileFromFile(path, file))), callback)
         (objects, callback) ->
           objects.push(new RemoteFile((path + "/.."), false, true, false, null, null, null))
           if atom.config.get 'remote-edit-ni.showHiddenFiles'
-            callback(null, objects)
+            callback?(null, objects)
           else
-            async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) -> callback(null, result)))
+            async.filter(objects, ((item, callback) -> item.isHidden(callback)), ((result) -> callback?(null, result)))
       ], (err, result) =>
         if err?
           @emitter.emit('info', {message: "Error occured when reading remote directory sftp://#{@username}@#{@hostname}:#{@port}:#{path}", type: 'error'} )
@@ -206,7 +206,7 @@ module.exports =
         (callback) =>
           @connection.sftp(callback)
         (sftp, callback) =>
-          sftp.fastGet(localFile.remoteFile.path, localFile.path, (err) => callback(err, sftp))
+          sftp.fastGet(localFile.remoteFile.path, localFile.path, (err) => callback?(err, sftp))
       ], (err, sftp) =>
         @emitter.emit('info', {message: "Error when reading remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'error'}) if err?
         @emitter.emit('info', {message: "Successfully read remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}", type: 'success'}) if !err?
@@ -224,7 +224,7 @@ module.exports =
           sftp.fastPut(localFile.path, localFile.remoteFile.path, callback)
         (callback) ->
           @tmp_sftp.end()
-          callback()
+          callback?()
       ], (err) =>
         if err?
           @emitter.emit('info', {message: "Error occured when writing remote file sftp://#{@username}@#{@hostname}:#{@port}#{localFile.remoteFile.path}<br/>#{err}", type: 'error'})
@@ -271,14 +271,14 @@ module.exports =
         (sftp, callback) ->
           sftp.mkdir(folderpath, callback)
           sftp.end()
-          callback(null, folderpath)
+          callback?(null, folderpath)
       ], (err) =>
         if err?
           @emitter.emit('info', {message: "Error occured while creating remote directory sftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'error'})
           console.error err if err?
         else
           @emitter.emit('info', {message: "Successfully created directory sftp://#{@username}@#{@hostname}:#{@port}#{folderpath}", type: 'success'})
-        callback(err)
+        callback?(err)
       )
 
 
@@ -294,7 +294,7 @@ module.exports =
           @tmp_sftp.writeFile(filepath, "", callback)
         (callback) =>
           @tmp_sftp.end()
-          callback()
+          callback?()
         ], (err) =>
             if err?
               if err == true
@@ -320,7 +320,7 @@ module.exports =
             sftp.unlink(deletepath, callback)
         (callback) =>
           @tmp_sftp.end()
-          callback(null)
+          callback?(null)
         ], (err) =>
           if err?
             @emitter.emit('info', {message: "Error occurred when deleting remote folder/file sftp://#{@username}@#{@hostname}:#{@port}#{deletepath}", type: 'error'})
@@ -362,7 +362,7 @@ module.exports =
               @tmp_sftp.rename(oldPath, newPath, callback)
             (callback) =>
               @tmp_sftp.end()
-              callback()
+              callback?()
           ], (err) =>
             if err?
               @emitter.emit('info', {message: "Error occurred when renaming remote folder/file sftp://#{@username}@#{@hostname}:#{@port}#{oldPath}", type: 'error'})
