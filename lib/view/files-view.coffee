@@ -17,6 +17,7 @@ _ = require 'underscore-plus'
 mkdirp = require 'mkdirp'
 moment = require 'moment'
 upath = require 'upath'
+pfolders = require 'platform-folders'
 
 module.exports =
   class FilesView extends View
@@ -257,7 +258,7 @@ module.exports =
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
         (callback) ->
-          fs.realpath(os.tmpdir(), callback)
+          fs.realpath(pfolders.getCacheFolder(), callback)
         (tmpDir, callback) ->
           tmpDir = tmpDir + path.sep + "remote-edit"
           fs.mkdir(tmpDir, ((err) ->
