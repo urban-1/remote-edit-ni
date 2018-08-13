@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/newinnovations/remote-edit-ni.svg?branch=master)](https://travis-ci.org/newinnovations/remote-edit-ni)
 
-Remote-edit-ni is a continuation of the abandoned remote-edit package. It is compatible with the latest version of atom (1.28.x at the time of writing) and contains a lot of new features.
+Remote-edit-ni is a continuation of the abandoned remote-edit package. It is compatible with the latest version of atom (1.29.x at the time of writing) and contains a lot of new features.
 
 This version integrates the work of Andreas Bontozoglou (@urban-1) and Martin van der Werff (@newinnovations).
 
@@ -15,8 +15,6 @@ In this view press <kbd>shift+s</kbd> to add your SFTP/SSH host or use <kbd>shif
 Then press <kbd>Alt+r b</kbd> / <kbd>&#8984;+r b</kbd> again and select your host. Remote edit will connect to your host and show the list of remote files in a side window (pane). Navigation should be pretty straightforward. Double click to open files or directories or use your keyboard.
 
 ## Please note / caveats
-
-Files are stored locally in a temporary location and copied to the remote host when saved. Files remain stored in this temporary location when you close atom. If these temporary files are not removed you can resume work directly when you restart atom. Otherwise files have to be re-opened again and if you had unsaved changes they got lost. Typically these temporary files do not survive a reboot. Make sure you save remote files before you exit atom.
 
 There is currently no check to see whether the file was changed on the remote host. Saving will overwrite any changes on the remote server.
 
