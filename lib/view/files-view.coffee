@@ -17,7 +17,11 @@ _ = require 'underscore-plus'
 mkdirp = require 'mkdirp'
 moment = require 'moment'
 upath = require 'upath'
-pfolders = require 'platform-folders'
+try
+  pfolders = require 'platform-folders'
+catch err
+  console.debug 'Platform folders could not be loaded! Files will be stored in regular temp location'
+  pfolders = undefined
 
 module.exports =
   class FilesView extends View
@@ -258,7 +262,10 @@ module.exports =
     getDefaultSaveDirForHostAndFile: (file, callback) ->
       async.waterfall([
         (callback) ->
-          fs.realpath(pfolders.getCacheFolder(), callback)
+          if pfolders?
+            fs.realpath(pfolders.getCacheFolder(), callback)
+          else
+            fs.realpath(os.tmpdir(), callback)
         (tmpDir, callback) ->
           tmpDir = tmpDir + path.sep + "remote-edit"
           fs.mkdir(tmpDir, ((err) ->

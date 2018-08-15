@@ -41,11 +41,11 @@
     "mkdirp": "~0.5.1",
     "upath": "~0.1.6",
     "temp": ">=0.8.3",
-    "rwlock": ">=5.0.0",
-    "platform-folders": ">=0.2.6"
+    "rwlock": ">=5.0.0"
   },
   "optionalDependencies": {
-    "keytar": "~3.0.0"
+    "keytar": "~3.0.0",
+    "platform-folders": ">=0.2.6"
   },
   "devDependencies": {
     "temp": "*"
