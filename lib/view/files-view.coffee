@@ -54,30 +54,43 @@ module.exports =
             @ol class: 'list-tree full-menu focusable-panel', tabindex: 1, outlet: 'list'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
+    # Return a list with items currently shown/allowed by the filter
+    getFilteredItems: ->
+      return @list.find('li').not('.hidden')
+
     doFilter: (e) ->
       switch e.keyCode
         when 13
-          toOpen = @filter.val()
-          if @filter.val()[0] == "." or @filter.val()[0] != "/"
-            toOpen = @path + "/" + @filter.val()
+          listedItems = @getFilteredItems()
+          if listedItems.length  == 1
+            # If only one item is in the list, open it
+            @confirmed(listedItems.first().data('select-list-item'))
+          else
+            toOpen = @filter.val()
+            if @filter.val()[0] == "." or @filter.val()[0] != "/"
+              toOpen = @path + "/" + @filter.val()
 
-          @openDirectory(toOpen, (err) =>
-            if err?
-              @setError("Could not open location")
-            else
-              @filter.val("")
-            )
+            @openDirectory(toOpen, (err) =>
+              if err?
+                @setError("Could not open location")
+              else
+                @filter.val("")
+                @deselect()
+              )
+          # In any case, return
           return
 
       # Hide the elements that do not match the filter's value
       if @filter.val().length > 0
-        @list.find('li span').each (index, item) =>
+        @list.find('li').each (index, item) =>
           if ! $(item).text().match(@filter.val())
             $(item).addClass('hidden')
           else
             $(item).removeClass('hidden')
       else
-        @list.find('li span').removeClass('hidden')
+        @list.find('li').removeClass('hidden')
+
+      @deselect()
 
       e.preventDefault()
 
@@ -428,20 +441,36 @@ module.exports =
 
     listSelectNext: =>
       item = @getSelectedItem()
-      if item.next('li').length == 0
+      next = item.next('li')
+
+      # Look for the next item that is not filtered
+      while next.length != 0
+        if !next.hasClass('hidden')
+          break
+        next = next.next('li')
+
+      if next.length == 0
         return
 
       @deselect()
-      item.next('li').addClass('selected').data('select-list-item')
+      next.addClass('selected').data('select-list-item')
       @scrollToView(@getSelectedItem(), @scroller)
 
     listSelectPrev: =>
       item = @getSelectedItem()
-      if item.prev('li').length == 0
+      prev = item.prev('li')
+
+      # Look for the previous item that is not filtered
+      while prev.length != 0
+        if !prev.hasClass('hidden')
+          break
+        prev = prev.prev('li')
+
+      if prev.length == 0
         return
 
       @deselect()
-      item.prev('li').addClass('selected').data('select-list-item')
+      prev.addClass('selected').data('select-list-item')
       @scrollToView(@getSelectedItem(), @scroller)
 
     listEnter: =>
@@ -538,6 +567,7 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-focus', =>
         @selectInitialItem()
         @list.focus()
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-filter-focus', => @filter.focus()
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:hide', => @hide()
 
       # Remote-edit Commands
