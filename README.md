@@ -39,6 +39,10 @@ Show open (downloaded) remote files.
 Give focus to the remote-edit file browser. This allows you to navigate with
 keyboard (up/down/enter/backspace/escape)
 
+- <kbd>Alt+r l</kbd> / <kbd>&#8984;+r l</kbd> -
+Give focus to the remote-edit file browser's filter bar which can also be used
+for navigation to a different folder
+
 - <kbd>Alt+r d</kbd> / <kbd>&#8984;+r d</kbd> -
 Disconnect all open server connections. Server connections are normally kept open to improve save and browse performance.
 
