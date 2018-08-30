@@ -105,8 +105,8 @@ module.exports =
       if @filter.val().length > 0
         @list.find('li').each (index, item) =>
           # Escape regex
-          re = @filter.val().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-          if !$(item).text().match(re)
+          # re = @filter.val().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          if !$(item).text().includes(@filter.val())
             $(item).addClass('hidden')
           else
             $(item).removeClass('hidden')
