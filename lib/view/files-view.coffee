@@ -65,11 +65,12 @@ module.exports =
       listedItems = @getFilteredItems()
 
       # If only one item is in the list, open it
-      if listedItems.length  == 1
-        @confirmed(listedItems.first().data('select-list-item'))
-
-      # Looks like a path, treat it as a chdir
-      else if @filter.val().indexOf("/") > -1
+      # if listedItems.length  == 1
+      #   @confirmed(listedItems.first().data('select-list-item'))
+      #
+      # # Looks like a path, treat it as a chdir
+      # else
+      if @filter.val().indexOf("/") > -1
 
         toOpen = @filter.val()
         if @filter.val()[0] == "." or @filter.val()[0] != "/"
@@ -83,7 +84,7 @@ module.exports =
             @deselect()
         )
       # Jump to the list
-      else
+      else if @getFilteredItems().length > 0
         @selectInitialItem()
         @list.focus()
 
@@ -103,7 +104,9 @@ module.exports =
       # Hide the elements that do not match the filter's value
       if @filter.val().length > 0
         @list.find('li').each (index, item) =>
-          if ! $(item).text().match(@filter.val())
+          # Escape regex
+          re = @filter.val().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          if !$(item).text().match(re)
             $(item).addClass('hidden')
           else
             $(item).removeClass('hidden')
@@ -497,7 +500,7 @@ module.exports =
 
     listEnter: =>
       item = @getSelectedItem()
-      if !item
+      if item.length == 0
         return
       @confirmed(item.data('select-list-item'))
       @list.focus()
