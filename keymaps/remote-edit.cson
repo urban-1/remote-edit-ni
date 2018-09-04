@@ -12,6 +12,7 @@
   'cmd-r o': 'remote-edit:show-open-files'
   'cmd-r v': 'remote-edit:toggle-files-view'
   'cmd-r f': 'filesview:list-focus'
+  'cmd-r l': 'filesview:list-filter-focus'
   'cmd-r m': 'remote-edit:browse-more'
   'cmd-r d': 'remote-edit:close-all-connections'
 
@@ -20,6 +21,7 @@
   'alt-r o': 'remote-edit:show-open-files'
   'alt-r v': 'remote-edit:toggle-files-view'
   'alt-r f': 'filesview:list-focus'
+  'alt-r l': 'filesview:list-filter-focus'
   'alt-r m': 'remote-edit:browse-more'
   'alt-r d': 'remote-edit:close-all-connections'
 

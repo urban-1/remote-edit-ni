@@ -54,31 +54,66 @@ module.exports =
             @ol class: 'list-tree full-menu focusable-panel', tabindex: 1, outlet: 'list'
         @div class: 'remote-edit-resize-handle', outlet: 'resizeHandle'
 
+
+    # Return a list with items currently shown/allowed by the filter
+    getFilteredItems: ->
+      return @list.find('li').not('.hidden')
+
+
+    # Handle enter in filter - split to simplify doFilter
+    handleFilterEnter: ->
+      listedItems = @getFilteredItems()
+
+      # If only one item is in the list, open it
+      # if listedItems.length  == 1
+      #   @confirmed(listedItems.first().data('select-list-item'))
+      #
+      # # Looks like a path, treat it as a chdir
+      # else
+      if @filter.val().indexOf("/") > -1
+
+        toOpen = @filter.val()
+        if @filter.val()[0] == "." or @filter.val()[0] != "/"
+          toOpen = @path + "/" + @filter.val()
+
+        @openDirectory(toOpen, (err) =>
+          if err?
+            @setError("Could not open location")
+          else
+            @filter.val("")
+            @deselect()
+        )
+      # Jump to the list
+      else if @getFilteredItems().length > 0
+        @selectInitialItem()
+        @list.focus()
+
+
     doFilter: (e) ->
       switch e.keyCode
+        # we have an enter
         when 13
-          toOpen = @filter.val()
-          if @filter.val()[0] == "." or @filter.val()[0] != "/"
-            toOpen = @path + "/" + @filter.val()
-
-          @openDirectory(toOpen, (err) =>
-            if err?
-              @setError("Could not open location")
-            else
-              @filter.val("")
-            )
+          @handleFilterEnter()
+          return
+        # we have keydown
+        when 40
+          @selectInitialItem()
+          @list.focus()
           return
 
       # Hide the elements that do not match the filter's value
       if @filter.val().length > 0
-        @list.find('li span').each (index, item) =>
-          if ! $(item).text().match(@filter.val())
+        @list.find('li').each (index, item) =>
+          # Escape regex
+          # re = @filter.val().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          if !$(item).text().includes(@filter.val())
             $(item).addClass('hidden')
           else
             $(item).removeClass('hidden')
       else
-        @list.find('li span').removeClass('hidden')
+        @list.find('li').removeClass('hidden')
 
+      @deselect()
       e.preventDefault()
 
 
@@ -362,6 +397,7 @@ module.exports =
             @openFile(item)
           else if item.isDir
             @host.invalidate()
+            @filter.val("")
             @openDirectory(item.path, () => @selectInitialItem())
           else if item.isLink
             if atom.config.get('remote-edit-ni.followLinks')
@@ -428,25 +464,43 @@ module.exports =
 
     listSelectNext: =>
       item = @getSelectedItem()
-      if item.next('li').length == 0
+      next = item.next('li')
+
+      # Look for the next item that is not filtered
+      while next.length != 0
+        if !next.hasClass('hidden')
+          break
+        next = next.next('li')
+
+      if next.length == 0
         return
 
       @deselect()
-      item.next('li').addClass('selected').data('select-list-item')
+      next.addClass('selected')
       @scrollToView(@getSelectedItem(), @scroller)
 
     listSelectPrev: =>
       item = @getSelectedItem()
-      if item.prev('li').length == 0
+      prev = item.prev('li')
+
+      # Look for the previous item that is not filtered
+      while prev.length != 0
+        if !prev.hasClass('hidden')
+          break
+        prev = prev.prev('li')
+
+      if prev.length == 0
+        # We are at the top - focus on the filter
+        @filter.focus()
         return
 
       @deselect()
-      item.prev('li').addClass('selected').data('select-list-item')
+      prev.addClass('selected')
       @scrollToView(@getSelectedItem(), @scroller)
 
     listEnter: =>
       item = @getSelectedItem()
-      if !item
+      if item.length == 0
         return
       @confirmed(item.data('select-list-item'))
       @list.focus()
@@ -538,6 +592,7 @@ module.exports =
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-focus', =>
         @selectInitialItem()
         @list.focus()
+      @disposables.add atom.commands.add 'atom-workspace', 'filesview:list-filter-focus', => @filter.focus()
       @disposables.add atom.commands.add 'atom-workspace', 'filesview:hide', => @hide()
 
       # Remote-edit Commands
@@ -585,18 +640,25 @@ module.exports =
         @setHost(host, folder, () => @selectInitialItem())
 
 
-
     # Default selection on focus or on enter directory
     selectInitialItem: () =>
       # Refuse to select if something already selected
       if @getSelectedItem().length
         return
 
+      # Use filtered items instead of all items
+      listedItems = @getFilteredItems()
+      if !listedItems || !listedItems.length
+        return
+
+      first = listedItems.first()
+      firstText = first.find("span").text()
+
       # Ensure we are not in a empty directory
-      if @list.children().length > 1
-        @list.children().first().next().addClass('selected')
+      if listedItems.length > 1 && firstText == ".."
+        first.next().addClass('selected')
       else
-        @list.children().first().addClass('selected')
+        first.addClass('selected')
 
     selectItemByPath: (path) ->
       @deselect()
